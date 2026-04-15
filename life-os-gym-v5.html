@@ -1,0 +1,1731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Life OS Gym</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0a0a0f;--bg2:#111118;--bg3:#1a1a24;
+  --card:#16161f;--card2:#1e1e2a;--border:#2a2a3a;
+  --accent:#c8f560;--accent2:#a8d840;--accent3:#7fb52a;
+  --red:#ff4d6d;--blue:#4d9fff;--purple:#9b6dff;--orange:#ff8c42;
+  --text:#f0f0f8;--text2:#9090a8;--text3:#5a5a72;--success:#56e39f;
+  --font-head:'Syne',sans-serif;--font-body:'DM Sans',sans-serif;
+  --r:16px;--r2:12px;--shadow:0 8px 32px rgba(0,0,0,0.4);
+}
+[data-theme="light"]{
+  --bg:#f0f2f5;--bg2:#e8eaef;--bg3:#dfe1e8;
+  --card:#fff;--card2:#f8f9fc;--border:#d0d3e0;
+  --text:#12121a;--text2:#505068;--text3:#9090a8;
+  --shadow:0 8px 32px rgba(0,0,0,0.08);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;font-size:15px;line-height:1.6;overflow-x:hidden}
+h1,h2,h3,h4,h5{font-family:var(--font-head);letter-spacing:-0.02em}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* ONBOARDING */
+#onboarding{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px}
+.onboard-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:44px 36px;max-width:480px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,0.5)}
+.onboard-logo{font-family:var(--font-head);font-size:26px;font-weight:800;color:var(--accent);margin-bottom:6px;letter-spacing:-0.03em}
+.onboard-sub{color:var(--text2);margin-bottom:32px;font-size:14px}
+.step-dots{display:flex;gap:8px;margin-bottom:28px}
+.step-dot{height:4px;border-radius:2px;flex:1;background:var(--border);transition:.3s}
+.step-dot.active{background:var(--accent)}.step-dot.done{background:var(--accent3)}
+.form-group{margin-bottom:18px}
+.form-label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:7px;text-transform:uppercase;letter-spacing:0.06em}
+.form-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:13px 15px;color:var(--text);font-family:var(--font-body);font-size:14px;transition:.2s;outline:none}
+.form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(200,245,96,.12)}
+.form-input::placeholder{color:var(--text3)}
+select.form-input{cursor:pointer}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 22px;border-radius:var(--r2);font-family:var(--font-body);font-weight:600;font-size:14px;cursor:pointer;border:none;transition:.2s;letter-spacing:0.01em}
+.btn-primary{background:var(--accent);color:#0a0f02;box-shadow:0 4px 20px rgba(200,245,96,.25)}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn-secondary{background:var(--card2);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--bg3);border-color:var(--accent)}
+.btn-ghost{background:transparent;color:var(--text2);padding:8px 12px}
+.btn-ghost:hover{color:var(--text);background:var(--card2)}
+.btn-danger{background:rgba(255,77,109,.15);color:var(--red);border:1px solid rgba(255,77,109,.3)}
+.btn-sm{padding:8px 14px;font-size:13px;border-radius:10px}
+.btn-full{width:100%}
+.btn-icon{width:38px;height:38px;padding:0;border-radius:10px}
+.btn-cardio-done{background:var(--card2);color:var(--text2);border:1px solid var(--border);padding:10px 18px;font-size:13px;font-weight:600;border-radius:10px;cursor:pointer;transition:.2s;font-family:var(--font-body)}
+.btn-cardio-done.done{background:rgba(86,227,159,.15);color:var(--success);border-color:rgba(86,227,159,.4)}
+.btn-success-sm{background:rgba(86,227,159,.12);color:var(--success);border:1px solid rgba(86,227,159,.3);padding:6px 14px;font-size:12px;font-weight:700;border-radius:8px;cursor:pointer;font-family:var(--font-body);transition:.2s}
+.btn-success-sm.active{background:rgba(86,227,159,.3);border-color:var(--success)}
+
+/* APP LAYOUT */
+#app{display:none;min-height:100vh;padding-bottom:84px}
+.nav{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,15,.96);backdrop-filter:blur(24px);border-top:1px solid var(--border);z-index:100;padding:0 4px;padding-bottom:env(safe-area-inset-bottom)}
+.nav-items{display:flex;justify-content:space-around;max-width:640px;margin:0 auto}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 6px;cursor:pointer;color:var(--text3);transition:.2s;flex:1;font-size:9.5px;font-weight:600;letter-spacing:0.04em;border:none;background:none;font-family:var(--font-body);text-transform:uppercase}
+.nav-item svg{width:20px;height:20px;transition:.2s}
+.nav-item.active{color:var(--accent)}
+.nav-item.active svg{filter:drop-shadow(0 0 5px var(--accent))}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 0;max-width:800px;margin:0 auto}
+.app-logo{font-family:var(--font-head);font-size:18px;font-weight:800;color:var(--accent)}
+.top-actions{display:flex;gap:7px;align-items:center}
+.datetime-badge{font-size:11px;color:var(--text2);font-weight:600;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:5px 10px;letter-spacing:0.02em;white-space:nowrap}
+
+/* PAGES */
+.page{display:none;padding:16px;max-width:800px;margin:0 auto}
+.page.active{display:block;animation:pageIn .25s ease}
+@keyframes pageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:14px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.card-title{font-size:15px;font-weight:700;color:var(--text)}
+.card-sub{font-size:13px;color:var(--text2)}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px}
+.stat-value{font-family:var(--font-head);font-size:26px;font-weight:700;color:var(--accent)}
+.stat-label{font-size:11px;color:var(--text2);margin-top:2px;text-transform:uppercase;letter-spacing:0.05em}
+.stat-change{font-size:12px;margin-top:3px}
+.stat-change.up{color:var(--success)}.stat-change.down{color:var(--red)}
+
+/* HERO */
+.hero-card{background:linear-gradient(135deg,#1e2a0a 0%,#0f1a18 50%,#0a0f1e 100%);border:1px solid rgba(200,245,96,.2);border-radius:20px;padding:22px 22px 18px;margin-bottom:14px;position:relative;overflow:hidden}
+.hero-card::before{content:'';position:absolute;top:-50%;right:-20%;width:280px;height:280px;background:radial-gradient(circle,rgba(200,245,96,.08) 0%,transparent 70%);pointer-events:none}
+.hero-top{display:flex;justify-content:space-between;align-items:flex-start}
+.hero-greeting{font-size:12px;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;font-weight:600}
+.hero-name{font-family:var(--font-head);font-size:24px;font-weight:800;line-height:1.1;margin-top:3px}
+.hero-meta{color:var(--text2);font-size:12px;margin-top:5px}
+.hero-datetime{font-size:11px;color:var(--text2);text-align:right;background:rgba(200,245,96,.06);border:1px solid rgba(200,245,96,.15);border-radius:9px;padding:6px 10px;font-weight:600}
+.streak-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(200,245,96,.12);border:1px solid rgba(200,245,96,.25);border-radius:20px;padding:5px 13px;font-size:12px;font-weight:600;color:var(--accent);margin-top:10px}
+
+/* EXERCISE CARDS (Today) */
+.exercise-card{background:var(--card2);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;margin-bottom:10px;transition:.2s}
+.exercise-card.is-done{border-color:rgba(86,227,159,.3);background:rgba(86,227,159,.03)}
+.exercise-header{display:flex;gap:12px;align-items:flex-start;padding:12px;cursor:pointer}
+.exercise-img{width:72px;height:54px;border-radius:8px;object-fit:cover;background:var(--bg3);flex-shrink:0}
+.exercise-name{font-weight:700;font-size:13px;margin-bottom:2px}
+.exercise-meta{font-size:11px;color:var(--text2)}
+.exercise-tip{font-size:10px;color:var(--text3);margin-top:2px;font-style:italic}
+.exercise-sets-badge{margin-left:auto;flex-shrink:0;background:rgba(200,245,96,.1);border:1px solid rgba(200,245,96,.2);border-radius:8px;padding:3px 9px;font-size:11px;color:var(--accent);font-weight:600}
+.exercise-sets-badge.done-badge{background:rgba(86,227,159,.15);color:var(--success);border-color:rgba(86,227,159,.35)}
+.exercise-body{padding:0 12px 12px;border-top:1px solid var(--border);display:none}
+.exercise-body.open{display:block;animation:slideDown .2s ease}
+@keyframes slideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+
+/* STRENGTH SET TABLE */
+.set-row{display:grid;grid-template-columns:26px 1fr 1fr 1fr 32px;gap:6px;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)}
+.set-row:last-of-type{border-bottom:none}
+.set-num{width:24px;height:24px;background:var(--bg3);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text2);flex-shrink:0}
+.set-num.done{background:rgba(200,245,96,.18);color:var(--accent)}
+.input-mini{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 5px;color:var(--text);font-family:var(--font-body);font-size:12px;width:100%;outline:none;text-align:center;transition:.2s}
+.input-mini:focus{border-color:var(--accent)}
+.input-mini::placeholder{color:var(--text3);font-size:10px}
+.check-btn{width:28px;height:28px;border-radius:7px;background:var(--bg3);border:1px solid var(--border);color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:.2s;flex-shrink:0}
+.check-btn.checked{background:rgba(200,245,96,.18);border-color:rgba(200,245,96,.4);color:var(--accent)}
+.set-labels{display:grid;grid-template-columns:26px 1fr 1fr 1fr 32px;gap:6px;padding:7px 0 3px}
+.set-label{font-size:10px;color:var(--text3);text-align:center;text-transform:uppercase;letter-spacing:0.05em}
+.set-label:first-child{text-align:left}
+
+/* PROGRESS ANALYSIS */
+.analysis-card{background:var(--bg3);border-radius:10px;padding:12px;margin-top:10px;border:1px solid var(--border)}
+.analysis-title{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px}
+.analysis-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px}
+.analysis-row:last-child{border-bottom:none}
+.analysis-metric{color:var(--text2)}
+.analysis-val{font-weight:700;color:var(--text)}
+.analysis-trend{font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px}
+.trend-up{background:rgba(86,227,159,.15);color:var(--success)}.trend-same{background:rgba(144,144,168,.12);color:var(--text3)}.trend-down{background:rgba(255,77,109,.12);color:var(--red)}
+
+/* CARDIO / RECOVERY INPUTS */
+.cardio-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 0}
+.cardio-field{display:flex;flex-direction:column;gap:5px}
+.cardio-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;font-weight:600}
+.cardio-input{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-family:var(--font-body);font-size:13px;width:100%;outline:none;transition:.2s}
+.cardio-input:focus{border-color:var(--blue)}
+.cardio-done-row{padding:9px 0;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.recovery-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--card2);border-radius:10px;margin-bottom:7px;border:1px solid transparent;transition:.2s}
+.recovery-item.done-item{border-color:rgba(86,227,159,.25);opacity:.7}
+.recovery-check{width:24px;height:24px;border-radius:7px;border:2px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.2s;background:var(--bg3);font-size:12px}
+.recovery-check.checked{background:rgba(86,227,159,.2);border-color:var(--success);color:var(--success)}
+.recovery-label{flex:1;font-size:13px;color:var(--text)}
+.recovery-item.done-item .recovery-label{text-decoration:line-through;color:var(--text3)}
+.recovery-duration{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:5px 9px;color:var(--text);font-size:12px;width:80px;text-align:center;outline:none;font-family:var(--font-body)}
+.recovery-duration:focus{border-color:var(--blue)}
+
+/* WARMUP / STRETCH */
+.warmup-list,.stretch-list{list-style:none;display:flex;flex-direction:column;gap:6px}
+.warmup-item,.stretch-item{display:flex;align-items:center;gap:9px;padding:8px 12px;background:var(--card2);border-radius:9px;font-size:12px;cursor:pointer;transition:.2s;border:1px solid transparent}
+.warmup-item::before{content:'→';color:var(--orange);font-weight:700;flex-shrink:0}
+.stretch-item::before{content:'~';color:var(--blue);font-weight:700;font-size:16px;flex-shrink:0}
+.warmup-item.checked,.stretch-item.checked{text-decoration:line-through;opacity:.55;border-color:rgba(200,245,96,.15)}
+.section-header{display:flex;align-items:center;gap:9px;margin-bottom:12px;margin-top:4px}
+.section-icon{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.section-icon.warmup{background:rgba(255,140,66,.15);border:1px solid rgba(255,140,66,.25)}
+.section-icon.workout{background:rgba(200,245,96,.1);border:1px solid rgba(200,245,96,.2)}
+.section-icon.stretch{background:rgba(77,159,255,.12);border:1px solid rgba(77,159,255,.25)}
+.section-icon.recovery{background:rgba(86,227,159,.1);border:1px solid rgba(86,227,159,.25)}
+.section-title{font-family:var(--font-head);font-size:16px;font-weight:700}
+
+/* PLAN */
+.plan-week{margin-bottom:20px}
+.plan-week-title{font-family:var(--font-head);font-size:17px;font-weight:700;margin-bottom:9px;color:var(--accent);display:flex;align-items:center;gap:8px}
+.day-row{display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--card);border:1px solid var(--border);border-radius:var(--r2);margin-bottom:6px;transition:.2s}
+.day-row.clickable{cursor:pointer}
+.day-row.clickable:hover{border-color:rgba(200,245,96,.3);transform:translateX(2px)}
+.day-num{font-family:var(--font-head);font-size:11px;font-weight:700;color:var(--text3);min-width:32px;text-align:center;background:var(--card2);padding:3px 6px;border-radius:7px;border:1px solid var(--border)}
+.day-num.today-num{background:rgba(200,245,96,.15);color:var(--accent);border-color:rgba(200,245,96,.3)}
+.day-name{font-weight:600;flex:1;font-size:13px}
+.day-focus{font-size:10px;color:var(--text2);margin-top:1px}
+.day-badge{font-size:9px;font-weight:700;padding:3px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:0.05em;flex-shrink:0}
+.badge-rest{background:rgba(90,90,114,.2);color:var(--text3)}.badge-cardio{background:rgba(77,159,255,.15);color:var(--blue)}
+.badge-strength{background:rgba(200,245,96,.1);color:var(--accent)}.badge-recovery{background:rgba(86,227,159,.12);color:var(--success)}
+.badge-today{background:rgba(200,245,96,.2);color:var(--accent);border:1px solid rgba(200,245,96,.4)}
+.plan-edit-btn{padding:3px 9px;font-size:10px;font-weight:700;border-radius:7px;border:1px solid var(--border);background:var(--card2);color:var(--text2);cursor:pointer;transition:.2s;font-family:var(--font-body)}
+.plan-edit-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* LIBRARY */
+.lib-search-wrap{position:relative;margin-bottom:12px}
+.lib-search{width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:11px 11px 11px 38px;color:var(--text);font-family:var(--font-body);font-size:13px;outline:none;transition:.2s}
+.lib-search:focus{border-color:var(--accent)}
+.lib-search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3)}
+.filter-chips{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;scrollbar-width:none}
+.filter-chips::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;padding:5px 13px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--text2);transition:.2s;font-family:var(--font-body)}
+.chip.active{background:var(--accent);color:#0a0f02;border-color:var(--accent)}
+.lib-exercise-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:10px;transition:.2s}
+.lib-exercise-card:hover{border-color:rgba(200,245,96,.25);box-shadow:0 4px 20px rgba(0,0,0,.25)}
+.lib-ex-header{display:flex;gap:12px;align-items:flex-start;padding:13px;cursor:pointer}
+.lib-ex-img{width:84px;height:64px;border-radius:10px;object-fit:cover;background:var(--bg3);flex-shrink:0;border:1px solid var(--border)}
+.lib-ex-name{font-weight:700;font-size:14px;margin-bottom:3px}
+.lib-ex-meta{font-size:11px;color:var(--text2);margin-bottom:4px}
+.lib-muscle-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase}
+.lib-ex-body{display:none;padding:0 13px 14px;border-top:1px solid var(--border)}
+.lib-ex-body.open{display:block;animation:slideDown .2s ease}
+.lib-ex-big-img{width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin:13px 0 14px;border:1px solid var(--border)}
+.muscle-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.muscle-tag{display:inline-flex;padding:2px 9px;border-radius:12px;font-size:11px;font-weight:600;border:1px solid}
+.muscle-tag.primary{background:rgba(200,245,96,.1);color:var(--accent);border-color:rgba(200,245,96,.25)}
+.muscle-tag.secondary{background:rgba(144,144,168,.1);color:var(--text2);border-color:var(--border)}
+.steps-list{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.step-item{display:flex;gap:9px;align-items:flex-start;font-size:12px}
+.step-num{flex-shrink:0;width:20px;height:20px;border-radius:50%;background:rgba(200,245,96,.12);border:1px solid rgba(200,245,96,.25);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--accent)}
+.pro-tip{background:rgba(255,140,66,.08);border:1px solid rgba(255,140,66,.2);border-radius:10px;padding:9px 12px;font-size:12px;color:var(--orange)}
+.diff-beginner{background:rgba(86,227,159,.1);color:var(--success);border:1px solid rgba(86,227,159,.25)}
+.diff-intermediate{background:rgba(77,159,255,.1);color:var(--blue);border:1px solid rgba(77,159,255,.25)}
+.diff-advanced{background:rgba(255,77,109,.1);color:var(--red);border:1px solid rgba(255,77,109,.25)}
+.equip-tag{display:inline-flex;padding:2px 9px;border-radius:8px;font-size:11px;background:var(--card2);color:var(--text2);border:1px solid var(--border);margin-bottom:11px}
+.mc-chest{background:rgba(255,77,109,.12);color:#ff6b85;border-color:rgba(255,77,109,.3)}
+.mc-back{background:rgba(77,159,255,.12);color:#6bb5ff;border-color:rgba(77,159,255,.3)}
+.mc-shoulders{background:rgba(155,109,255,.12);color:#b58aff;border-color:rgba(155,109,255,.3)}
+.mc-biceps{background:rgba(86,227,159,.12);color:#56e39f;border-color:rgba(86,227,159,.3)}
+.mc-triceps{background:rgba(200,245,96,.12);color:var(--accent);border-color:rgba(200,245,96,.3)}
+.mc-legs{background:rgba(255,140,66,.12);color:var(--orange);border-color:rgba(255,140,66,.3)}
+.mc-core{background:rgba(255,200,100,.12);color:#ffd060;border-color:rgba(255,200,100,.3)}
+.mc-cardio{background:rgba(77,200,255,.12);color:#4dc8ff;border-color:rgba(77,200,255,.3)}
+
+/* NUTRITION */
+.macro-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:14px}
+.macro-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:12px;text-align:center}
+.macro-value{font-family:var(--font-head);font-size:20px;font-weight:700}
+.macro-unit{font-size:10px;color:var(--text2)}
+.macro-label{font-size:9px;color:var(--text3);margin-top:2px;text-transform:uppercase;letter-spacing:0.05em}
+
+/* BMI */
+.bmi-wrap{text-align:center;padding:12px 0}
+.bmi-value{font-family:var(--font-head);font-size:42px;font-weight:800;color:var(--accent)}
+.bmi-scale{display:flex;height:6px;border-radius:4px;overflow:hidden;margin:12px 0 6px;gap:2px}
+.bmi-seg{flex:1;border-radius:2px}
+
+/* SELFIE */
+.selfie-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.selfie-thumb{aspect-ratio:1;border-radius:9px;object-fit:cover;width:100%;cursor:pointer;background:var(--card2);transition:.2s}
+
+/* PROFILE */
+.profile-header{display:flex;align-items:center;gap:16px;padding:18px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);margin-bottom:14px}
+.avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--accent3),var(--accent));display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:24px;font-weight:800;color:#0a0f02;flex-shrink:0}
+.profile-name{font-family:var(--font-head);font-size:19px;font-weight:700}
+.profile-email{font-size:12px;color:var(--text2)}
+
+/* TOAST */
+.toast-container{position:fixed;top:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:7px;pointer-events:none}
+.toast{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px 15px;display:flex;align-items:center;gap:9px;box-shadow:var(--shadow);min-width:200px;animation:toastIn .3s ease;font-size:13px;pointer-events:all}
+.toast.success{border-left:3px solid var(--accent)}.toast.error{border-left:3px solid var(--red)}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes toastOut{from{opacity:1}to{opacity:0;transform:translateX(20px)}}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:none;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(4px)}
+.modal-overlay.open{display:flex;animation:fadeIn .2s ease}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px;max-width:480px;width:100%;max-height:88vh;overflow-y:auto;animation:slideUp .22s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+/* MISC */
+.chart-wrap{position:relative;height:200px;margin-top:10px}
+.checkin-card{background:linear-gradient(135deg,rgba(200,245,96,.08) 0%,rgba(0,0,0,0) 60%);border:1px solid rgba(200,245,96,.2);border-radius:var(--r);padding:18px;margin-bottom:14px}
+.checkin-title{font-family:var(--font-head);font-size:17px;font-weight:700;margin-bottom:2px}
+.weight-input-big{background:var(--bg3);border:2px solid var(--border);border-radius:12px;padding:12px 16px;color:var(--text);font-family:var(--font-head);font-size:26px;font-weight:700;width:140px;text-align:center;outline:none;transition:.2s;margin:9px 0}
+.weight-input-big:focus{border-color:var(--accent)}
+.workout-complete-banner{background:linear-gradient(135deg,rgba(200,245,96,.12),rgba(86,227,159,.08));border:1px solid rgba(200,245,96,.3);border-radius:var(--r);padding:20px;text-align:center;margin-bottom:12px}
+.rest-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:32px;text-align:center}
+.tag{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:14px;background:var(--card2);color:var(--text2);border:1px solid var(--border);text-transform:uppercase;letter-spacing:0.05em}
+.theme-toggle{width:40px;height:22px;border-radius:12px;background:var(--bg3);border:1px solid var(--border);cursor:pointer;position:relative;transition:.3s}
+.theme-toggle::after{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:var(--text2);transition:.3s}
+[data-theme="light"] .theme-toggle::after{transform:translateX(18px);background:var(--accent)}
+.progress-bar-wrap{background:var(--bg3);border-radius:6px;height:6px;overflow:hidden;margin-top:6px}
+.progress-bar-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent3),var(--accent));transition:.5s ease}
+.wow-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:8px;font-size:11px;font-weight:700}
+.wow-up{background:rgba(86,227,159,.15);color:var(--success)}.wow-same{background:rgba(144,144,168,.12);color:var(--text3)}.wow-down{background:rgba(255,77,109,.12);color:var(--red)}
+
+@media(max-width:500px){
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .macro-grid{grid-template-columns:repeat(2,1fr)}
+  .form-row{grid-template-columns:1fr}
+  .onboard-card{padding:26px 18px}
+  .hero-name{font-size:20px}
+  .set-row{grid-template-columns:24px 1fr 1fr 1fr 28px;gap:4px}
+  .datetime-badge{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="toast-container" id="toastContainer"></div>
+<div class="modal-overlay" id="modalOverlay"><div class="modal" id="modalContent"></div></div>
+
+<!-- ONBOARDING -->
+<div id="onboarding">
+  <div class="onboard-card">
+    <div class="onboard-logo">Life OS Gym</div>
+    <div class="onboard-sub">Your premium fitness operating system</div>
+    <div class="step-dots"><div class="step-dot active" id="sd1"></div><div class="step-dot" id="sd2"></div><div class="step-dot" id="sd3"></div></div>
+    <div id="step1">
+      <h2 style="margin-bottom:18px;font-size:20px">Welcome! Set up your profile</h2>
+      <div class="form-group"><label class="form-label">Your Name</label><input class="form-input" id="ob-name" type="text" placeholder="e.g. Alex Johnson"></div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="ob-email" type="email" placeholder="you@example.com"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Age</label><input class="form-input" id="ob-age" type="number" placeholder="25" min="10" max="99"></div>
+        <div class="form-group"><label class="form-label">Gender</label><select class="form-input" id="ob-gender"><option value="">Select</option><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option></select></div>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="obNext(1)">Continue →</button>
+    </div>
+    <div id="step2" style="display:none">
+      <h2 style="margin-bottom:18px;font-size:20px">Your body metrics</h2>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Height (cm)</label><input class="form-input" id="ob-height" type="number" placeholder="175"></div>
+        <div class="form-group"><label class="form-label">Weight (kg)</label><input class="form-input" id="ob-weight" type="number" placeholder="70" step="0.1"></div>
+      </div>
+      <div id="bmi-preview" style="display:none;margin-bottom:16px" class="card">
+        <div style="font-size:12px;color:var(--text2)">Your BMI</div>
+        <div class="bmi-value" id="bmi-pv" style="font-size:30px">—</div>
+        <div id="bmi-pc" style="font-size:13px;color:var(--text2)">—</div>
+      </div>
+      <div class="form-group"><label class="form-label">Fitness Goal</label><select class="form-input" id="ob-goal"><option value="">Select goal</option><option value="lose">Lose Weight / Cut</option><option value="build">Build Muscle / Bulk</option><option value="maintain">Maintain & Tone</option><option value="strength">Pure Strength</option></select></div>
+      <div style="display:flex;gap:10px"><button class="btn btn-secondary" onclick="obBack(2)">← Back</button><button class="btn btn-primary" style="flex:1" onclick="obNext(2)">Continue →</button></div>
+    </div>
+    <div id="step3" style="display:none">
+      <h2 style="margin-bottom:6px;font-size:20px">Choose your plan</h2>
+      <p style="color:var(--text2);font-size:13px;margin-bottom:20px">Pick the intensity that matches your level</p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
+        <div class="card" id="plan-standard" onclick="selectPlan('standard')" style="cursor:pointer;transition:.2s"><div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:700;font-size:15px">⚡ Standard</div><div style="font-size:12px;color:var(--text2);margin-top:3px">Beginners & intermediates. 3–4 sets, full recovery.</div></div><div id="pc-s" style="font-size:22px">○</div></div></div>
+        <div class="card" id="plan-intense" onclick="selectPlan('intense')" style="cursor:pointer;transition:.2s"><div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:700;font-size:15px">🔥 Intense</div><div style="font-size:12px;color:var(--text2);margin-top:3px">Advanced athletes. Higher volume, minimal rest.</div></div><div id="pc-i" style="font-size:22px">○</div></div></div>
+      </div>
+      <div style="display:flex;gap:10px"><button class="btn btn-secondary" onclick="obBack(3)">← Back</button><button class="btn btn-primary" style="flex:1" onclick="finishOnboarding()">Start Training 🚀</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="top-bar">
+    <div class="app-logo">Life OS</div>
+    <div class="top-actions">
+      <div class="datetime-badge" id="topDateTime">--</div>
+      <div class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"></div>
+      <button class="btn btn-ghost btn-icon btn-sm" onclick="showWeeklyModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="hero-card">
+      <div class="hero-top">
+        <div>
+          <div class="hero-greeting" id="dash-greeting">Good morning</div>
+          <div class="hero-name" id="dash-name">Champion</div>
+          <div class="hero-meta" id="dash-meta">Today is a great day to train</div>
+        </div>
+        <div class="hero-datetime" id="hero-dt">—</div>
+      </div>
+      <div class="streak-badge" id="streak-badge">🔥 0 day streak</div>
+    </div>
+    <div class="checkin-card">
+      <div class="checkin-title">Daily Check-in</div>
+      <div style="color:var(--text2);font-size:13px;margin-bottom:6px">Log your weight to track progress</div>
+      <input class="weight-input-big" id="today-weight" type="number" step="0.1" placeholder="70.0">
+      <div style="font-size:11px;color:var(--text2)">kg</div>
+      <div style="display:flex;gap:9px;margin-top:9px;flex-wrap:wrap">
+        <button class="btn btn-primary btn-sm" onclick="saveWeight()">Save Weight</button>
+        <button class="btn btn-secondary btn-sm" onclick="editPastWeight()">Edit Previous</button>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-value" id="dash-bmi">—</div><div class="stat-label">BMI</div><div class="stat-change" id="dash-bmi-cat" style="color:var(--success)">Normal</div></div>
+      <div class="stat-card"><div class="stat-value" id="dash-weight">—</div><div class="stat-label">Weight (kg)</div><div class="stat-change" id="dash-weight-delta"></div></div>
+      <div class="stat-card"><div class="stat-value" id="dash-workouts">0</div><div class="stat-label">Workouts Done</div><div class="stat-change" style="color:var(--text2)" id="dash-week-count">this week</div></div>
+      <div class="stat-card"><div class="stat-value" id="dash-streak">0</div><div class="stat-label">Day Streak 🔥</div><div class="stat-change" style="color:var(--text2)">keep going!</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div><div class="card-title">Today's Workout</div><div class="card-sub" id="today-workout-name">Loading...</div></div><button class="btn btn-primary btn-sm" onclick="switchPage('today')">Start →</button></div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="today-progress-bar" style="width:0%"></div></div>
+      <div style="font-size:12px;color:var(--text2);margin-top:5px" id="today-progress-text">0 completed</div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Weight Trend</div><span class="tag">Last 14 days</span></div>
+      <div class="chart-wrap"><canvas id="weightChart"></canvas></div>
+    </div>
+    <div class="card" style="background:linear-gradient(135deg,rgba(155,109,255,.1),rgba(77,159,255,.05));border-color:rgba(155,109,255,.3)">
+      <div style="font-size:17px;margin-bottom:6px">💪</div>
+      <div style="font-family:var(--font-head);font-size:14px;font-weight:700;margin-bottom:2px" id="motivation-quote">Success is the sum of small efforts repeated day in and day out.</div>
+      <div style="font-size:11px;color:var(--text2)">— Daily Motivation</div>
+    </div>
+  </div>
+
+  <!-- TODAY'S WORKOUT -->
+  <div class="page" id="page-today"><div id="workout-content"></div></div>
+
+  <!-- PLAN -->
+  <div class="page" id="page-plan">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <h2>Training Plan</h2>
+    </div>
+    <p style="color:var(--text2);font-size:13px;margin-bottom:16px">4-week loop — days shown as days of week. Tap any day to edit exercises.</p>
+    <div id="plan-content"></div>
+  </div>
+
+  <!-- LIBRARY -->
+  <div class="page" id="page-library">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <h2>Exercise Library</h2>
+      <button class="btn btn-secondary btn-sm" onclick="showAddExerciseModal()">+ Add</button>
+    </div>
+    <p style="color:var(--text2);font-size:13px;margin-bottom:12px">Form guides with images for every exercise</p>
+    <div class="lib-search-wrap">
+      <svg class="lib-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="lib-search" id="lib-search-input" type="text" placeholder="Search exercises..." oninput="renderLibrary()">
+    </div>
+    <div class="filter-chips" id="lib-filter-chips"></div>
+    <div id="lib-content"></div>
+  </div>
+
+  <div class="page" id="page-nutrition"><h2 style="margin-bottom:4px">Nutrition Guide</h2><p style="color:var(--text2);font-size:13px;margin-bottom:16px">Personalized to your body & goals</p><div id="nutrition-content"></div></div>
+  <div class="page" id="page-progress"><h2 style="margin-bottom:4px">Progress</h2><p style="color:var(--text2);font-size:13px;margin-bottom:16px">Track your transformation</p><div id="progress-content"></div></div>
+  <div class="page" id="page-profile"><div id="profile-content"></div></div>
+
+  <nav class="nav">
+    <div class="nav-items">
+      <button class="nav-item active" onclick="switchPage('dashboard')" id="nav-dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dash
+      </button>
+      <button class="nav-item" onclick="switchPage('today')" id="nav-today">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Today
+      </button>
+      <button class="nav-item" onclick="switchPage('plan')" id="nav-plan">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Plan
+      </button>
+      <button class="nav-item" onclick="switchPage('library')" id="nav-library">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Library
+      </button>
+      <button class="nav-item" onclick="switchPage('nutrition')" id="nav-nutrition">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>Food
+      </button>
+      <button class="nav-item" onclick="switchPage('progress')" id="nav-progress">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Progress
+      </button>
+      <button class="nav-item" onclick="switchPage('profile')" id="nav-profile">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile
+      </button>
+    </div>
+  </nav>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// DAYS OF WEEK
+// ═══════════════════════════════════════════════
+const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const DAY_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+// ═══════════════════════════════════════════════
+// EXERCISE LIBRARY DATA
+// ═══════════════════════════════════════════════
+const BUILT_IN_LIBRARY = [
+  // ── CHEST ────────────────────────────────────────────────────────────────
+  {id:'bench',name:'Bench Press',muscle:'Chest',muscleKey:'chest',equipment:'Barbell + Bench',difficulty:'intermediate',
+   primary:['Pectoralis Major','Anterior Deltoid'],secondary:['Triceps','Serratus Anterior'],
+   desc:'Elite Plan Day 1. Target: 45 kg × 8 × 4. The foundation chest exercise — horizontal push that builds raw pec mass and pressing power.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/barbell-bench-press-form.gif',targetSets:'4 × 8',
+   steps:['Lie flat, grip bar slightly wider than shoulders','Lower to mid-chest with control — 2 sec descent','Drive feet into floor and press explosively','Lock out at top, squeeze pecs, lower again'],
+   tip:'Start at 45 kg. Add 2.5 kg only when all 4 sets of 8 reps feel controlled. Shoulder blades retracted throughout.'},
+  {id:'incdb',name:'Incline DB Press',muscle:'Upper Chest',muscleKey:'chest',equipment:'Dumbbells + Incline Bench',difficulty:'beginner',
+   primary:['Upper Pectoralis Major'],secondary:['Anterior Deltoid','Triceps'],
+   desc:'Elite Plan: 15 kg × 10 × 3. Targets upper chest fibres at 30–45° incline — the area most people underdevelop.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/incline-dumbbell-press.gif',targetSets:'3 × 10',
+   steps:['Set bench to 30–45°','Press 15 kg dumbbells up above upper chest','Lower with control, elbows at 60–75° from torso','Squeeze upper chest at top'],
+   tip:'15 kg target. Progress to 17.5 kg when 3×10 feels controlled. Lower angle = more upper chest.'},
+  {id:'incfly',name:'Incline Fly',muscle:'Upper Chest',muscleKey:'chest',equipment:'Dumbbells + Incline Bench',difficulty:'beginner',
+   primary:['Upper Pectoralis Major'],secondary:['Anterior Deltoid'],
+   desc:'Elite Plan: 8 kg × 12 × 3. Pure stretch-and-squeeze isolation for upper pec fibres. Complements Incline DB Press perfectly.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/dumbbell-fly.gif',targetSets:'3 × 12',
+   steps:['Set bench to 30–45°, dumbbells above chest arms wide','Open arms in wide arc — slight elbow bend throughout','Feel a deep upper-pec stretch at the bottom','Bring dumbbells back together squeezing chest at top'],
+   tip:'8 kg target. Never lock elbows. Go for the stretch — this is isolation work, not a strength move.'},
+  {id:'machinechest',name:'Machine Chest Press',muscle:'Chest',muscleKey:'chest',equipment:'Chest Press Machine',difficulty:'beginner',
+   primary:['Pectoralis Major'],secondary:['Triceps','Anterior Deltoid'],
+   desc:'Elite Plan: 35 kg × 12 × 3. Guided machine eliminates balance demand — perfect for higher-rep hypertrophy finisher.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/03/machine-chest-press.gif',targetSets:'3 × 12',
+   steps:['Adjust seat so handles align with lower chest','Plant feet flat, retract shoulder blades','Press to full extension — squeeze hard at top','Return slowly — 3 sec eccentric'],
+   tip:'35 kg target. Machine provides constant tension through full ROM. Use as pump finisher after compound work.'},
+  {id:'cablefly',name:'Cable Fly',muscle:'Chest',muscleKey:'chest',equipment:'Cable Machine',difficulty:'beginner',
+   primary:['Pectoralis Major'],secondary:['Anterior Deltoid'],
+   desc:'Elite Plan: 10 kg × 15 × 3. Constant cable tension for peak pec contraction — the best chest isolation finisher.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/cable-crossover.gif',targetSets:'3 × 15',
+   steps:['Cables at chest height, stand in centre','Step forward, slight forward lean','Arc arms together with slight elbow bend','Squeeze chest hard at peak — hold 1 sec'],
+   tip:'10 kg per side. Focus on the stretch at the bottom. Go lighter and feel every rep.'},
+  {id:'pushups',name:'Push-Ups',muscle:'Chest / Triceps',muscleKey:'chest',equipment:'None',difficulty:'beginner',
+   primary:['Pectoralis Major','Triceps'],secondary:['Anterior Deltoid','Core'],
+   desc:'Elite Plan: 3 sets to max reps. Bodyweight finisher for chest endurance and pump. Lower-back safe.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/push-up.gif',targetSets:'3 × max reps',
+   steps:['Hands just wider than shoulder-width, body in straight line','Lower chest to floor — elbows at 45° from torso','Press explosively back to start','Maintain rigid plank — no sagging hips'],
+   tip:'Stop 1–2 reps before form breaks. Log your reps and beat them weekly.'},
+  // ── BACK ──────────────────────────────────────────────────────────────────
+  {id:'latpulldown',name:'Lat Pulldown',muscle:'Lats',muscleKey:'back',equipment:'Cable Machine',difficulty:'beginner',
+   primary:['Latissimus Dorsi'],secondary:['Biceps','Rear Deltoid'],
+   desc:'Elite Plan: 40 kg × 10 × 3. Lower-back safe vertical pull — replaces barbell deadlift. Best lat-width builder.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/lat-pulldown-wide-grip.gif',targetSets:'3 × 10',
+   steps:['Grip wider than shoulder width, lock thighs under pad','Lean back slightly, pull elbows down and back toward hips','Bring bar to upper chest — squeeze lats hard','Control return — full arm extension at top'],
+   tip:'40 kg target. Imagine pulling elbows to back pockets. Avoid shrugging at top.'},
+  {id:'seatedrow',name:'Seated Row',muscle:'Mid Back',muscleKey:'back',equipment:'Cable Machine',difficulty:'beginner',
+   primary:['Rhomboids','Middle Trapezius'],secondary:['Lats','Biceps'],
+   desc:'Elite Plan: 35 kg × 12 × 3. Horizontal pull for mid-back thickness. Seated position protects lower back.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/seated-cable-row.gif',targetSets:'3 × 12',
+   steps:['Sit tall, feet on platform, grip V-bar','Pull elbows straight back squeezing shoulder blades','Hold 1 sec at full contraction','Return arms forward slowly — spine neutral throughout'],
+   tip:'35 kg target. Drive elbows back — not up. Chest up, spine neutral.'},
+  {id:'singlearmrow',name:'Single Arm Row',muscle:'Lats / Mid Back',muscleKey:'back',equipment:'Dumbbell',difficulty:'beginner',
+   primary:['Latissimus Dorsi','Rhomboids'],secondary:['Biceps','Rear Deltoid'],
+   desc:'Elite Plan: 15 kg × 10 × 3. Unilateral row corrects left-right imbalances and allows longer ROM.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/single-arm-dumbbell-row.gif',targetSets:'3 × 10 each',
+   steps:['Same-side knee and hand on bench for support','Hold 15 kg dumbbell hanging straight down','Pull elbow straight up and back — starting a lawnmower','Lower slowly — full stretch at bottom'],
+   tip:'15 kg per arm. Slight torso rotation at top for better lat squeeze.'},
+  {id:'facepull',name:'Face Pull',muscle:'Rear Delts / Traps',muscleKey:'back',equipment:'Cable Machine',difficulty:'beginner',
+   primary:['Posterior Deltoid','Trapezius'],secondary:['Rotator Cuff'],
+   desc:'Elite Plan: 12 kg × 15 × 3. Essential for shoulder health — corrects internal rotation from heavy pressing.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/cable-face-pull.gif',targetSets:'3 × 15',
+   steps:['Set cable at face height with rope attachment','Pull rope toward face, elbows flared at shoulder height','Externally rotate — thumbs finish behind ears','Hold 1 sec, return slowly'],
+   tip:'12 kg. Do these in every session. High reps (15–20) work best.'},
+  {id:'straightarmpulldown',name:'Straight Arm Pulldown',muscle:'Lats',muscleKey:'back',equipment:'Cable Machine',difficulty:'beginner',
+   primary:['Latissimus Dorsi'],secondary:['Teres Major','Core'],
+   desc:'Elite Plan: 12 kg × 12 × 3. Isolates the lats without bicep involvement — perfect back finisher.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/straight-arm-pulldown.gif',targetSets:'3 × 12',
+   steps:['Stand facing high cable, arms straight, slight forward lean','Keep arms straight — no elbow bend','Pull bar in arc down to hips, squeeze lats at bottom','Return slowly to shoulder height — feel the lat stretch'],
+   tip:'12 kg. Slow 3-sec eccentric — that is where growth happens.'},
+  // ── SHOULDERS ────────────────────────────────────────────────────────────
+  {id:'dbshoulder',name:'Dumbbell Shoulder Press',muscle:'Shoulders',muscleKey:'shoulders',equipment:'Dumbbells',difficulty:'beginner',
+   primary:['Anterior Deltoid','Medial Deltoid'],secondary:['Triceps','Upper Trapezius'],
+   desc:'Elite Plan: 12.5 kg × 10 × 3. Primary shoulder builder with dumbbells for natural wrist rotation.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/seated-dumbbell-shoulder-press.gif',targetSets:'3 × 10',
+   steps:['Sit upright, 12.5 kg dumbbells at shoulder height','Brace core — do not over-arch','Press overhead until arms nearly lock out','Lower with control to ear height'],
+   tip:'12.5 kg target. Seated removes leg drive. Keep elbows slightly forward — not flared straight out.'},
+  {id:'lateral',name:'Lateral Raise',muscle:'Side Delts',muscleKey:'shoulders',equipment:'Dumbbells',difficulty:'beginner',
+   primary:['Medial Deltoid'],secondary:['Supraspinatus'],
+   desc:'Elite Plan: 6 kg × 15 × 4. High-volume side delt isolation — 4 sets for max shoulder width development.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/lateral-raise.gif',targetSets:'4 × 15',
+   steps:['6 kg dumbbells at sides, slight elbow bend','Lead with elbows — raise to just above shoulder height','Tilt pinkies slightly up','Lower slowly — 3 sec negative'],
+   tip:'6 kg prescribed. 4×15 strict beats 4×8 with momentum. The negative is where the growth happens.'},
+  {id:'reardeltfly',name:'Rear Delt Fly',muscle:'Rear Delts',muscleKey:'shoulders',equipment:'Dumbbells',difficulty:'beginner',
+   primary:['Posterior Deltoid'],secondary:['Rhomboids','Trapezius'],
+   desc:'Elite Plan: 6 kg × 12 × 3. Essential for balanced shoulders and posture correction.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/incline-dumbbell-rear-delt-fly.gif',targetSets:'3 × 12',
+   steps:['Bend forward at 45°, 6 kg dumbbells hanging below chest','Raise arms out to sides in wide arc — slight elbow bend','Squeeze rear delts at top — lead with elbows','Lower slowly — feel the stretch'],
+   tip:'6 kg target. No momentum or body rocking. If you swing, the weight is too heavy.'},
+  {id:'arnoldpress',name:'Arnold Press',muscle:'Full Shoulders',muscleKey:'shoulders',equipment:'Dumbbells',difficulty:'intermediate',
+   primary:['Anterior Deltoid','Medial Deltoid'],secondary:['Triceps','Rotator Cuff'],
+   desc:'Elite Plan: 10 kg × 10 × 3. Hits all three deltoid heads through full rotation — named after Arnold Schwarzenegger.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/arnold-press.gif',targetSets:'3 × 10',
+   steps:['Start with 10 kg dumbbells at chin, palms facing you','As you press up, rotate palms outward','Finish overhead with palms facing forward','Reverse rotation on the way down'],
+   tip:'10 kg target. The rotation recruits front and side delts through full range — do not rush it.'},
+  // ── BICEPS ───────────────────────────────────────────────────────────────
+  {id:'bbcurl',name:'Barbell Curl',muscle:'Biceps',muscleKey:'biceps',equipment:'Barbell',difficulty:'beginner',
+   primary:['Biceps Brachii'],secondary:['Brachialis'],
+   desc:'Elite Plan: 20 kg × 10 × 3. Classic mass builder — maximal loading for bicep strength and hypertrophy.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/barbell-curl.gif',targetSets:'3 × 10',
+   steps:['Grip bar shoulder-width underhand, arms fully extended','Pin elbows to sides — they must not move','Curl toward chest, squeeze hard at top','Lower over 2–3 seconds'],
+   tip:'20 kg start. Supinate wrists at top for peak contraction. Drop weight before you swing.'},
+  {id:'inclinecurl',name:'Incline Curl',muscle:'Biceps',muscleKey:'biceps',equipment:'Dumbbells + Incline Bench',difficulty:'intermediate',
+   primary:['Biceps Brachii Long Head'],secondary:['Brachialis'],
+   desc:'Elite Plan: 8 kg × 12 × 3. Incline stretches the long head — outstanding for peak development.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/incline-dumbbell-curl.gif',targetSets:'3 × 12',
+   steps:['Set bench to 45–60°, 8 kg dumbbells hanging at sides','Let arms hang fully — the stretch is the key stimulus','Curl up, supinating wrists at top','Lower slowly — 1 sec hold at bottom stretch'],
+   tip:'8 kg target. The incline removes all ability to cheat. Full stretch at bottom is what makes this work.'},
+  {id:'hammer',name:'Hammer Curl',muscle:'Biceps / Brachialis',muscleKey:'biceps',equipment:'Dumbbells',difficulty:'beginner',
+   primary:['Brachialis','Brachioradialis'],secondary:['Biceps Brachii'],
+   desc:'Elite Plan: 10 kg × 10 × 3. Neutral grip targets brachialis — the muscle under the bicep that pushes it up.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/dumbbell-hammer-curl.gif',targetSets:'3 × 10',
+   steps:['10 kg dumbbells with neutral (thumb-up) grip','Curl up — maintain neutral grip throughout','Do not rotate at top','Lower slowly over 2–3 seconds'],
+   tip:'10 kg target. Cross-body hammer curls increase brachialis demand. Adds arm thickness.'},
+  {id:'preachercurl',name:'Preacher Curl',muscle:'Biceps',muscleKey:'biceps',equipment:'EZ Bar + Preacher Bench',difficulty:'intermediate',
+   primary:['Biceps Brachii'],secondary:['Brachialis'],
+   desc:'Elite Plan: 15 kg × 10 × 3. Preacher bench eliminates cheating — pure isolated bicep contraction from a stretched position.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/preacher-curl.gif',targetSets:'3 × 10',
+   steps:['Sit at preacher bench, EZ bar at 15 kg, upper arms flat on pad','Lower bar slowly to full extension — feel the stretch','Curl to chin height squeezing hard at top','Do not let elbows lift off the pad'],
+   tip:'15 kg total. Full extension at the bottom is what makes preacher curls effective. Partial reps miss the point.'},
+  // ── TRICEPS ──────────────────────────────────────────────────────────────
+  {id:'pushdown',name:'Tricep Pushdown',muscle:'Triceps',muscleKey:'triceps',equipment:'Cable Machine',difficulty:'beginner',
+   primary:['Triceps Brachii'],secondary:['Anconeus'],
+   desc:'Elite Plan: 18 kg × 12 × 3. Constant cable tension targets all three tricep heads.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/cable-pushdown.gif',targetSets:'3 × 12',
+   steps:['Stand at high cable, 18 kg, grab bar or rope','Pin elbows to sides — they must not move','Push down to full extension, squeeze hard','Return slowly — stop at forearms parallel to floor'],
+   tip:'18 kg target. Rope attachment and spread apart at bottom for better squeeze.'},
+  {id:'ovhext',name:'Overhead Tricep Extension',muscle:'Triceps',muscleKey:'triceps',equipment:'Dumbbell or Cable',difficulty:'beginner',
+   primary:['Triceps Long Head'],secondary:['Medial Head'],
+   desc:'Elite Plan: 12 kg × 12 × 3. Long-head focus — the biggest tricep head, responsible for most arm size.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2021/12/overhead-tricep-extension.gif',targetSets:'3 × 12',
+   steps:['Hold 12 kg overhead with both hands, elbows forward','Lower behind head bending only at elbows','Feel a deep long-head stretch at the bottom','Extend fully overhead — squeeze at lockout'],
+   tip:'12 kg target. The overhead position maximally stretches the long head. This is where size is built.'},
+  {id:'benchdips',name:'Bench Dips',muscle:'Triceps',muscleKey:'triceps',equipment:'Bench',difficulty:'beginner',
+   primary:['Triceps Brachii'],secondary:['Anterior Deltoid','Chest'],
+   desc:'Elite Plan: 3 sets to max reps. Bodyweight tricep finisher. Lower-back and shoulder friendly.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/bench-dip.gif',targetSets:'3 × max reps',
+   steps:['Hands on bench behind you, fingers forward, feet extended','Keep torso upright — lean forward shifts load to chest','Lower until elbows reach 90°','Push up powerfully squeezing triceps at top'],
+   tip:'Log your reps every set. Add a plate on thighs when bodyweight becomes easy.'},
+  // ── LEGS / GLUTES ─────────────────────────────────────────────────────────
+  {id:'gobletsquat',name:'Goblet Squat',muscle:'Quads / Glutes',muscleKey:'legs',equipment:'Dumbbell or Kettlebell',difficulty:'beginner',
+   primary:['Quadriceps','Gluteus Maximus'],secondary:['Adductors','Core'],
+   desc:'Elite Plan: 20 kg × 10 × 4. Lower-back safe squat. Goblet position keeps torso upright — ideal with lower-back sensitivity.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/goblet-squat.gif',targetSets:'4 × 10',
+   steps:['Hold 20 kg dumbbell at chest with both hands','Feet shoulder-width, toes slightly out','Squat down with elbows between knees to guide depth','Drive through heels — squeeze glutes at top'],
+   tip:'20 kg target. Goblet position teaches perfect squat mechanics and protects the spine.'},
+  {id:'legpress',name:'Leg Press',muscle:'Quads',muscleKey:'legs',equipment:'Leg Press Machine',difficulty:'beginner',
+   primary:['Quadriceps'],secondary:['Glutes','Hamstrings'],
+   desc:'Elite Plan: 100 kg × 12 × 3. Heavy compound leg work with zero spinal load — perfect with lower-back sensitivity.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/leg-press.gif',targetSets:'3 × 12',
+   steps:['Feet hip-width in centre of platform','Lower sled until 90° knee angle — back stays on seat','Press through full foot — heels included','Do not lock knees at top'],
+   tip:'100 kg target. No lower-back stress. High foot placement = more glutes/hams.'},
+  {id:'rdl',name:'Romanian Deadlift',muscle:'Hamstrings / Glutes',muscleKey:'legs',equipment:'Barbell',difficulty:'intermediate',
+   primary:['Hamstrings','Gluteus Maximus'],secondary:['Erector Spinae'],
+   desc:'Elite Plan: 40 kg (light) × 10 × 3. Hip hinge for posterior chain. Light load respects lower-back sensitivity.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/dumbbell-romanian-deadlift.gif',targetSets:'3 × 10',
+   steps:['Stand tall, 40 kg bar at thighs, micro-bend in knees','Push hips BACK — letting bar travel close to legs','Lower until hamstring tension (below knee)','Drive hips forward to stand, squeeze glutes at top'],
+   tip:'40 kg intentionally light for back safety. Hip hinge — not a squat. Stop at hamstring tension.'},
+  {id:'hipthrust',name:'Hip Thrust',muscle:'Glutes',muscleKey:'legs',equipment:'Barbell + Bench',difficulty:'intermediate',
+   primary:['Gluteus Maximus'],secondary:['Hamstrings','Adductors','Core'],
+   desc:'Elite Plan: 60 kg × 10 × 3. Most effective glute exercise. Horizontal hip extension — zero lower-back stress.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/barbell-hip-thrust.gif',targetSets:'3 × 10',
+   steps:['Upper back on bench, 60 kg bar across hip crease (use pad)','Feet flat, knees at 90° when hips are up','Drive hips up powerfully squeezing glutes at top','Lower until hips just above floor — do not touch down'],
+   tip:'60 kg target. Torso parallel to floor at top. Chin tucked. Add 5 kg when 3×10 feels easy.'},
+  {id:'legcurl',name:'Leg Curl',muscle:'Hamstrings',muscleKey:'legs',equipment:'Machine',difficulty:'beginner',
+   primary:['Biceps Femoris','Semitendinosus'],secondary:['Gastrocnemius'],
+   desc:'Elite Plan: 30 kg × 12 × 3. Isolated hamstring work — no spinal loading required.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/lying-leg-curl.gif',targetSets:'3 × 12',
+   steps:['Lie face down, pad just above ankle','Curl heels toward glutes — squeeze hard at top','Pause 1 second at peak contraction','Lower slowly — 2–3 sec eccentric'],
+   tip:'30 kg target. The slow negative drives hamstring hypertrophy. Control every rep.'},
+  {id:'legext',name:'Leg Extension',muscle:'Quads',muscleKey:'legs',equipment:'Machine',difficulty:'beginner',
+   primary:['Quadriceps (all 4 heads)'],secondary:['Rectus Femoris'],
+   desc:'Elite Plan: 35 kg × 12 × 3. Isolated quad finisher. VMO strongly recruited — great for knee stability.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/leg-extension.gif',targetSets:'3 × 12',
+   steps:['Pad just above ankle, back of knee on seat edge','Extend legs to full extension — squeeze quads hard at top','Hold squeeze for 1 sec','Lower slowly — 2–3 sec eccentric'],
+   tip:'35 kg target. Toes inward slightly increases VMO activation. Superset with Leg Curl for efficiency.'},
+  {id:'calfraise',name:'Calf Raises',muscle:'Calves',muscleKey:'legs',equipment:'Machine or Bodyweight',difficulty:'beginner',
+   primary:['Gastrocnemius','Soleus'],secondary:['Tibialis Posterior'],
+   desc:'Elite Plan: 15 reps × 4. High-rep calf work. Full ROM is the key — most people cheat the stretch.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/standing-calf-raise.gif',targetSets:'4 × 15',
+   steps:['Balls of feet on edge of step, heels hanging off','Lower heels FULLY below step — maximum stretch','Rise onto toes as high as possible','Hold at top for 1 sec, then lower slowly'],
+   tip:'4×15 plan. Full stretch at bottom is non-negotiable. Add weight when 4×15 full ROM feels easy.'},
+  // ── CORE ─────────────────────────────────────────────────────────────────
+  {id:'plank',name:'Plank',muscle:'Core',muscleKey:'core',equipment:'None',difficulty:'beginner',
+   primary:['Transverse Abdominis','Rectus Abdominis'],secondary:['Obliques','Glutes'],
+   desc:'Elite Plan: 30–45 sec × 3. Core stability — protects the lower back. Critical with lower-back sensitivity.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/plank.gif',targetSets:'3 × 30–45 sec',
+   steps:['Forearms on ground, elbows under shoulders','Straight line head to heels — no sagging or piking','Squeeze glutes, core, and quads actively','Breathe steadily — exhale forcefully to brace harder'],
+   tip:'30–45 sec target. Quality over duration — 30 sec perfect beats 60 sec with a sagging back.'},
+  {id:'legrise',name:'Hanging Leg Raise',muscle:'Core',muscleKey:'core',equipment:'Pull-up Bar',difficulty:'intermediate',
+   primary:['Rectus Abdominis (lower)','Hip Flexors'],secondary:['Obliques'],
+   desc:'Elite Plan: 10 reps × 3. Most effective lower-ab exercise — requires grip strength and core control.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/hanging-leg-raise.gif',targetSets:'3 × 10',
+   steps:['Hang from bar, arms fully extended','Posterior pelvic tilt first — flatten lower back','Raise legs to 90° using abs — NOT momentum','Lower slowly — 2–3 sec descent'],
+   tip:'10 reps target. Bend knees to reduce difficulty. Once 3×10 is easy, straighten legs or add ankle weight.'},
+  // ── CARDIO ───────────────────────────────────────────────────────────────
+  {id:'inclinewalk',name:'Incline Walk',muscle:'Cardio / Glutes',muscleKey:'cardio',equipment:'Treadmill',difficulty:'beginner',isCardio:true,cardioType:'walk',
+   primary:['Cardiovascular System','Glutes','Calves'],secondary:['Hamstrings','Core'],
+   desc:'Elite Plan post-workout prescription: 15 min incline walk after every session. Primary fat-loss tool.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/03/treadmill-running.gif',targetSets:'15 min post-workout',
+   steps:['Set treadmill incline to 8–12%, speed 4–5 km/h','Do not hold the handrails — let glutes work','Maintain upright posture — do not lean forward','Add 5 min duration weekly as fitness improves'],
+   tip:'15 min at incline burns significantly more calories than flat walking. Do it after EVERY session.'},
+  {id:'treadmill',name:'Treadmill Run',muscle:'Cardio',muscleKey:'cardio',equipment:'Treadmill',difficulty:'beginner',isCardio:true,cardioType:'run',
+   primary:['Cardiovascular System','Quads'],secondary:['Glutes','Core'],
+   desc:'Controlled adjustable cardio. Zone 2 steady-state or HIIT sprints.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/03/treadmill-running.gif',targetSets:'20–40 min',
+   steps:['Warm up at walking pace 3–5 min','Gradually increase to working pace','Upright posture, mid-foot landing','Cool down with 3–5 min walk'],
+   tip:'Zone 2: hold a conversation. Use 1–2% incline to simulate outdoor running.'},
+  {id:'cycling',name:'Stationary Cycling',muscle:'Cardio',muscleKey:'cardio',equipment:'Stationary Bike',difficulty:'beginner',isCardio:true,cardioType:'cycle',
+   primary:['Cardiovascular System','Quads'],secondary:['Calves','Glutes'],
+   desc:'Low-impact cardio. Lower-back friendly. Great for recovery or intervals.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/03/stationary-bike.gif',targetSets:'20–45 min',
+   steps:['Adjust seat — slight bend at bottom','Set resistance','Smooth circular pedaling','Core engaged throughout'],
+   tip:'High cadence, low resistance for endurance. Low cadence, high resistance for strength intervals.'},
+  {id:'battleropes',name:'Battle Ropes',muscle:'Full Body / Cardio',muscleKey:'cardio',equipment:'Battle Ropes',difficulty:'intermediate',isCardio:true,cardioType:'hiit',
+   primary:['Shoulders','Core'],secondary:['Arms','Back','Legs'],
+   desc:'High-intensity whole-body conditioning. Power endurance and metabolic conditioning.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/battle-rope-waves.gif',targetSets:'5–8 rounds',
+   steps:['Athletic stance, slight knee bend','Create waves with alternating or double arms','Drive power from hips and core','20–40 sec on, 20–40 sec rest'],
+   tip:'Double waves are harder. Continuous powerful movement throughout each interval.'},
+  {id:'jumprope',name:'Jump Rope',muscle:'Cardio / Calves',muscleKey:'cardio',equipment:'Jump Rope',difficulty:'beginner',isCardio:true,cardioType:'jumprope',
+   primary:['Cardiovascular System','Calves'],secondary:['Shoulders','Core'],
+   desc:'Portable cardio. Burns calories and improves coordination.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/03/jump-rope.gif',targetSets:'5 × 1 min',
+   steps:['Handles at hip height','Swing rope with wrists — not arms','Balls of feet, jump only 1 inch high','Consistent rhythm'],
+   tip:'Jump 1 inch off the ground. High jumps waste energy.'},
+  {id:'hiit',name:'HIIT Sprints',muscle:'Cardio',muscleKey:'cardio',equipment:'Treadmill or Outdoors',difficulty:'advanced',isCardio:true,cardioType:'hiit',
+   primary:['Cardiovascular System'],secondary:['Quads','Hamstrings','Glutes'],
+   desc:'Maximum intensity intervals. Most efficient fat-burning protocol.',
+   img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/03/treadmill-running.gif',targetSets:'6–10 rounds',
+   steps:['Warm up 5 min','Sprint at 85–95% max effort 20–30 sec','Recover walking 40–60 sec','Repeat 6–10 rounds, cool down 5 min'],
+   tip:'Max 2–3×/week. Heart rate should reach 85–90%+ during sprints.'}
+];
+
+// ═══════════════════════════════════════════════
+// CARDIO FIELD CONFIGS
+// ═══════════════════════════════════════════════
+const CARDIO_FIELDS = {
+  run:[
+    {key:'duration',label:'Duration (min)',type:'number',placeholder:'30'},
+    {key:'speed',label:'Speed (km/h)',type:'number',placeholder:'8.0',step:'0.1'},
+    {key:'incline',label:'Incline (%)',type:'number',placeholder:'1'},
+    {key:'distance',label:'Distance (km)',type:'number',placeholder:'4.0',step:'0.1'}
+  ],
+  cycle:[
+    {key:'duration',label:'Duration (min)',type:'number',placeholder:'30'},
+    {key:'cadence',label:'Cadence (rpm)',type:'number',placeholder:'80'},
+    {key:'resistance',label:'Resistance Level',type:'number',placeholder:'8'},
+    {key:'distance',label:'Distance (km)',type:'number',placeholder:'12',step:'0.1'}
+  ],
+  hiit:[
+    {key:'rounds',label:'Rounds',type:'number',placeholder:'8'},
+    {key:'work',label:'Work (sec)',type:'number',placeholder:'20'},
+    {key:'rest',label:'Rest (sec)',type:'number',placeholder:'40'},
+    {key:'peakHR',label:'Peak HR (bpm)',type:'number',placeholder:'165'}
+  ],
+  jumprope:[
+    {key:'duration',label:'Duration (min)',type:'number',placeholder:'10'},
+    {key:'sets',label:'Sets',type:'number',placeholder:'5'},
+    {key:'secsPerSet',label:'Sec / Set',type:'number',placeholder:'60'},
+    {key:'style',label:'Style',type:'text',placeholder:'Basic / Double-unders'}
+  ],
+  rowing:[
+    {key:'duration',label:'Duration (min)',type:'number',placeholder:'20'},
+    {key:'strokeRate',label:'Stroke Rate (spm)',type:'number',placeholder:'24'},
+    {key:'damper',label:'Damper Level',type:'number',placeholder:'5'},
+    {key:'distance',label:'Distance (m)',type:'number',placeholder:'4000'}
+  ],
+  walk:[
+    {key:'duration',label:'Duration (min)',type:'number',placeholder:'30'},
+    {key:'distance',label:'Distance (km)',type:'number',placeholder:'3',step:'0.1'},
+    {key:'pace',label:'Pace (min/km)',type:'text',placeholder:'9:30'},
+    {key:'steps',label:'Steps',type:'number',placeholder:'4000'}
+  ],
+  general:[
+    {key:'duration',label:'Duration (min)',type:'number',placeholder:'20'},
+    {key:'rounds',label:'Sets / Rounds',type:'number',placeholder:'5'},
+    {key:'rest',label:'Rest (sec)',type:'number',placeholder:'30'},
+    {key:'notes',label:'Notes',type:'text',placeholder:'Any observations...'}
+  ]
+};
+
+function getCardioType(name){
+  const n=name.toLowerCase();
+  if(n.includes('treadmill')||n.includes('run')||n.includes('sprint')||n.includes('jog'))return 'run';
+  if(n.includes('cycl')||n.includes('bike')||n.includes('spin'))return 'cycle';
+  if(n.includes('jump rope')||n.includes('skipping'))return 'jumprope';
+  if(n.includes('row'))return 'rowing';
+  if(n.includes('swim'))return'swim';
+  if(n.includes('walk'))return 'walk';
+  if(n.includes('hiit')||n.includes('battle rope')||n.includes('interval'))return 'hiit';
+  return 'general';
+}
+
+// ═══════════════════════════════════════════════
+// WORKOUT DATA (day=0–6 maps to Sun–Sat)
+const WD_BASE = {
+  standard:{
+    weekA:[
+      {day:1,name:'Chest & Biceps',type:'strength',
+       warmup:['5–7 min brisk walk or cycling','Dynamic mobility — hips and shoulders','Glute bridges × 15','Bird dogs × 10 each side','Dead bugs × 10','Warm-up sets before bench: 50% × 10, then 70% × 5'],
+       exercises:[
+         {name:'Bench Press',sets:4,reps:'8',muscle:'Chest',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/barbell-bench-press-form.gif',tip:'Target: 45 kg. Feet flat, drive through chest.',isCardio:false},
+         {name:'Incline DB Press',sets:3,reps:'10',muscle:'Upper Chest',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/incline-dumbbell-press.gif',tip:'Target: 15 kg. 30–45°. Squeeze at top.',isCardio:false},
+         {name:'Incline Fly',sets:3,reps:'12',muscle:'Upper Chest',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/dumbbell-fly.gif',tip:'Target: 8 kg. Deep stretch — isolation work.',isCardio:false},
+         {name:'Machine Chest Press',sets:3,reps:'12',muscle:'Chest',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/03/machine-chest-press.gif',tip:'Target: 35 kg. 3-sec negative.',isCardio:false},
+         {name:'Cable Fly',sets:3,reps:'15',muscle:'Chest',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/cable-crossover.gif',tip:'Target: 10 kg. Squeeze hard at peak.',isCardio:false},
+         {name:'Push-Ups',sets:3,reps:'max',muscle:'Chest / Triceps',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/push-up.gif',tip:'3 sets to max. Log and beat weekly.',isCardio:false},
+         {name:'Barbell Curl',sets:3,reps:'10',muscle:'Biceps',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/barbell-curl.gif',tip:'Target: 20 kg. Elbows pinned. Full ROM.',isCardio:false},
+         {name:'Incline Curl',sets:3,reps:'12',muscle:'Biceps',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/incline-dumbbell-curl.gif',tip:'Target: 8 kg. Stretch long head fully.',isCardio:false},
+         {name:'Hammer Curl',sets:3,reps:'10',muscle:'Biceps / Brachialis',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/dumbbell-hammer-curl.gif',tip:'Target: 10 kg. Neutral grip throughout.',isCardio:false},
+         {name:'Preacher Curl',sets:3,reps:'10',muscle:'Biceps',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/preacher-curl.gif',tip:'Target: 15 kg. Full extension at bottom.',isCardio:false}
+       ],
+       stretch:['Chest doorway stretch — 30 sec','Cross-body shoulder — 20 sec','Bicep wall stretch — 30 sec','Cat-cow — 8 reps','✅ 15 min incline walk (fat-loss protocol)']},
+      {day:2,name:'Back & Triceps',type:'strength',
+       warmup:['5–7 min brisk walk or cycling','Dynamic mobility — hips and shoulders','Glute bridges × 15','Bird dogs × 10','Band pull-aparts × 20','Light lat pulldown warm-up × 15'],
+       exercises:[
+         {name:'Lat Pulldown',sets:3,reps:'10',muscle:'Lats',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/lat-pulldown-wide-grip.gif',tip:'Target: 40 kg. Elbows to back pockets. Lower-back safe.',isCardio:false},
+         {name:'Seated Row',sets:3,reps:'12',muscle:'Mid Back',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/seated-cable-row.gif',tip:'Target: 35 kg. Chest up, spine neutral.',isCardio:false},
+         {name:'Single Arm Row',sets:3,reps:'10',muscle:'Lats / Mid Back',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/single-arm-dumbbell-row.gif',tip:'Target: 15 kg each arm. Full stretch at bottom.',isCardio:false},
+         {name:'Face Pull',sets:3,reps:'15',muscle:'Rear Delts',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/cable-face-pull.gif',tip:'Target: 12 kg. External rotation at end.',isCardio:false},
+         {name:'Straight Arm Pulldown',sets:3,reps:'12',muscle:'Lats',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/straight-arm-pulldown.gif',tip:'Target: 12 kg. Arms straight — pure lat isolation.',isCardio:false},
+         {name:'Tricep Pushdown',sets:3,reps:'12',muscle:'Triceps',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/cable-pushdown.gif',tip:'Target: 18 kg. Elbows fixed. Slow negative.',isCardio:false},
+         {name:'Overhead Tricep Extension',sets:3,reps:'12',muscle:'Triceps',img:'https://www.inspireusafoundation.org/wp-content/uploads/2021/12/overhead-tricep-extension.gif',tip:'Target: 12 kg. Deep stretch at bottom.',isCardio:false},
+         {name:'Bench Dips',sets:3,reps:'max',muscle:'Triceps',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/bench-dip.gif',tip:'3 sets to max. Torso upright. Track reps.',isCardio:false}
+       ],
+       stretch:['Lats stretch — 30 sec','Thoracic foam roll — 60 sec','Tricep overhead stretch — 20 sec','Forward fold — 30 sec','✅ 15 min incline walk (fat-loss protocol)']},
+      {day:3,name:'Active Recovery',type:'recovery',isRecovery:true,warmup:[],exercises:[],
+       activities:['20–30 min brisk walk (target 8–10k steps today)','Full body foam rolling — 10 min','Yoga / mobility flow — 20 min','Cold or contrast shower','Breathing exercises — 5 min box breathing'],
+       stretch:['Hip flexor lunge — 45 sec each','Pigeon pose — 1 min each side','Seated spinal twist — 30 sec each','Legs up the wall — 3 min']},
+      {day:4,name:'Shoulders & Abs',type:'strength',
+       warmup:['5–7 min brisk walk or cycling','Dynamic shoulder circles — 20 reps','Face pulls light — 15 reps','Band pull-aparts — 15 reps','Dead bugs × 10'],
+       exercises:[
+         {name:'Dumbbell Shoulder Press',sets:3,reps:'10',muscle:'Shoulders',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/seated-dumbbell-shoulder-press.gif',tip:'Target: 12.5 kg. Seated, full ROM.',isCardio:false},
+         {name:'Lateral Raise',sets:4,reps:'15',muscle:'Side Delts',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/lateral-raise.gif',tip:'Target: 6 kg. 3-sec negative — the growth maker.',isCardio:false},
+         {name:'Rear Delt Fly',sets:3,reps:'12',muscle:'Rear Delts',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/incline-dumbbell-rear-delt-fly.gif',tip:'Target: 6 kg. No momentum. Squeeze at top.',isCardio:false},
+         {name:'Arnold Press',sets:3,reps:'10',muscle:'Full Shoulders',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/arnold-press.gif',tip:'Target: 10 kg. Rotate palms through full ROM.',isCardio:false},
+         {name:'Plank',sets:3,reps:'30–45 sec',muscle:'Core',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/plank.gif',tip:'30–45 sec. Perfect form — squeeze everything.',isCardio:false},
+         {name:'Hanging Leg Raise',sets:3,reps:'10',muscle:'Lower Abs',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/hanging-leg-raise.gif',tip:'10 reps. Controlled descent. No swinging.',isCardio:false}
+       ],
+       stretch:['Cross-body shoulder — 30 sec each','Neck side stretch — 20 sec each','Child\'s pose — 45 sec','Cat-cow — 8 reps','✅ 15 min incline walk (fat-loss protocol)']},
+      {day:5,name:'Legs & Glutes',type:'strength',
+       warmup:['5–7 min cycling or walking','Glute bridges × 15','Bird dogs × 10 each side','Hip circles × 10 each direction','Bodyweight squats × 15'],
+       exercises:[
+         {name:'Goblet Squat',sets:4,reps:'10',muscle:'Quads / Glutes',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/goblet-squat.gif',tip:'Target: 20 kg. Elbows between knees. Lower-back safe.',isCardio:false},
+         {name:'Leg Press',sets:3,reps:'12',muscle:'Quads',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/leg-press.gif',tip:'Target: 100 kg. No spinal load.',isCardio:false},
+         {name:'Romanian Deadlift',sets:3,reps:'10',muscle:'Hamstrings / Glutes',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/dumbbell-romanian-deadlift.gif',tip:'Target: 40 kg (light). Stop at hamstring tension.',isCardio:false},
+         {name:'Hip Thrust',sets:3,reps:'10',muscle:'Glutes',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/barbell-hip-thrust.gif',tip:'Target: 60 kg. Squeeze glutes hard at top.',isCardio:false},
+         {name:'Leg Curl',sets:3,reps:'12',muscle:'Hamstrings',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/lying-leg-curl.gif',tip:'Target: 30 kg. 3-sec eccentric.',isCardio:false},
+         {name:'Leg Extension',sets:3,reps:'12',muscle:'Quads',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/leg-extension.gif',tip:'Target: 35 kg. Squeeze quad hard at top.',isCardio:false},
+         {name:'Calf Raises',sets:4,reps:'15',muscle:'Calves',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/standing-calf-raise.gif',tip:'Full stretch at bottom every rep.',isCardio:false}
+       ],
+       stretch:['Standing quad — 30 sec each','Seated hamstring — 45 sec','Pigeon pose — 1 min each','Calf wall stretch — 30 sec each','Hip flexor lunge — 45 sec each','✅ 15 min incline walk (fat-loss protocol)']},
+      {day:6,name:'Cardio + Core',type:'cardio',
+       warmup:['5 min light cycling or walk','High knees — 30 sec','Butt kicks — 30 sec','Dynamic leg swings — 15 each'],
+       exercises:[
+         {name:'Incline Walk',sets:1,reps:'20–30 min',muscle:'Cardio / Glutes',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/03/treadmill-running.gif',tip:'8–12% incline, 4–5 km/h. Primary fat-loss session.',isCardio:true,cardioType:'walk'},
+         {name:'Battle Ropes',sets:5,reps:'30 sec on / 15 sec off',muscle:'Full Body',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/battle-rope-waves.gif',tip:'Drive from hips. Alternate or double waves.',isCardio:true,cardioType:'hiit'},
+         {name:'Plank',sets:3,reps:'45 sec',muscle:'Core',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/plank.gif',tip:'Straight line head to heels. Squeeze everything.',isCardio:false},
+         {name:'Hanging Leg Raise',sets:3,reps:'10–15',muscle:'Core',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/hanging-leg-raise.gif',tip:'Controlled every rep. No swinging.',isCardio:false}
+       ],
+       stretch:['Full body stretch — 10 min','Foam roll — IT band, quads, back','Child\'s pose — 1 min','Pigeon pose — 1 min each side']},
+      {day:0,name:'Rest Day',type:'rest',isRest:true}
+    ],
+    weekB:[
+      {day:1,name:'Chest & Biceps (B)',type:'strength',
+       warmup:['5–7 min brisk walk or cycling','Dynamic mobility','Glute bridges × 15','Push-up to downward dog — 10 reps','Warm-up sets: 50% × 10, then 70% × 5'],
+       exercises:[
+         {name:'Bench Press',sets:4,reps:'8',muscle:'Chest',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/barbell-bench-press-form.gif',tip:'Week B: try 47.5 kg if Week A felt strong.',isCardio:false},
+         {name:'Incline Fly',sets:3,reps:'12',muscle:'Upper Chest',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/dumbbell-fly.gif',tip:'8 kg. Deep stretch and peak squeeze.',isCardio:false},
+         {name:'Machine Chest Press',sets:4,reps:'12',muscle:'Chest',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/03/machine-chest-press.gif',tip:'37.5 kg. 3-sec negative.',isCardio:false},
+         {name:'Cable Fly',sets:3,reps:'15',muscle:'Chest',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/cable-crossover.gif',tip:'10 kg. High-to-low angle for lower chest variation.',isCardio:false},
+         {name:'Push-Ups',sets:3,reps:'max',muscle:'Chest / Triceps',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/push-up.gif',tip:'Beat your Week A rep count.',isCardio:false},
+         {name:'Incline Curl',sets:3,reps:'12',muscle:'Biceps',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/incline-dumbbell-curl.gif',tip:'8 kg. Slow stretch at bottom.',isCardio:false},
+         {name:'Hammer Curl',sets:3,reps:'10',muscle:'Biceps / Brachialis',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/dumbbell-hammer-curl.gif',tip:'10 kg. Cross-body variation for brachialis.',isCardio:false},
+         {name:'Preacher Curl',sets:3,reps:'10',muscle:'Biceps',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/preacher-curl.gif',tip:'15 kg. Full extension every rep.',isCardio:false},
+         {name:'Barbell Curl',sets:3,reps:'10',muscle:'Biceps',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/barbell-curl.gif',tip:'20 kg. Supinate at top for peak.',isCardio:false}
+       ],
+       stretch:['Pec stretch on foam roller — 60 sec','Doorway chest stretch — 30 sec each','Wrist flexor stretch — 20 sec','✅ 15 min incline walk (fat-loss protocol)']},
+      {day:2,name:'Back & Triceps (B)',type:'strength',
+       warmup:['5–7 min brisk walk or cycling','Dead hangs — 20 sec','Scapular pull-ups — 10 reps','Band rows — 15 reps','Glute bridges × 15'],
+       exercises:[
+         {name:'Lat Pulldown',sets:4,reps:'10',muscle:'Lats',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/lat-pulldown-wide-grip.gif',tip:'Week B: try 42.5 kg. Pull elbows to back pockets.',isCardio:false},
+         {name:'Seated Row',sets:4,reps:'12',muscle:'Mid Back',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/seated-cable-row.gif',tip:'37.5 kg. Squeeze blades at peak.',isCardio:false},
+         {name:'Single Arm Row',sets:3,reps:'12',muscle:'Lats / Mid Back',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/single-arm-dumbbell-row.gif',tip:'17.5 kg. Slight torso rotation at top.',isCardio:false},
+         {name:'Face Pull',sets:3,reps:'15',muscle:'Rear Delts',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/cable-face-pull.gif',tip:'12 kg. Always. Shoulder health essential.',isCardio:false},
+         {name:'Straight Arm Pulldown',sets:3,reps:'12',muscle:'Lats',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/straight-arm-pulldown.gif',tip:'12 kg. 3-sec eccentric.',isCardio:false},
+         {name:'Overhead Tricep Extension',sets:3,reps:'12',muscle:'Triceps',img:'https://www.inspireusafoundation.org/wp-content/uploads/2021/12/overhead-tricep-extension.gif',tip:'12 kg. Deep stretch = long-head growth.',isCardio:false},
+         {name:'Tricep Pushdown',sets:4,reps:'12',muscle:'Triceps',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/cable-pushdown.gif',tip:'18 kg. Rope attachment for better squeeze.',isCardio:false},
+         {name:'Bench Dips',sets:3,reps:'max',muscle:'Triceps',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/bench-dip.gif',tip:'Beat Week A. Add plate for resistance when easy.',isCardio:false}
+       ],
+       stretch:['Lats overhead stretch — 30 sec','Thoracic foam roll — 60 sec','Tricep doorway stretch — 20 sec','✅ 15 min incline walk (fat-loss protocol)']},
+      {day:3,name:'HIIT & Core',type:'cardio',
+       warmup:['5 min walk → light jog','Leg swings — 15 each direction','Hip circles — 10 each'],
+       exercises:[
+         {name:'Incline Walk',sets:1,reps:'20 min',muscle:'Cardio / Glutes',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/03/treadmill-running.gif',tip:'8–12% incline. Warm into HIIT.',isCardio:true,cardioType:'walk'},
+         {name:'Jump Rope',sets:5,reps:'1 min on / 30 sec rest',muscle:'Cardio',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/03/jump-rope.gif',tip:'Stay on balls of feet. Rhythmic.',isCardio:true,cardioType:'jumprope'},
+         {name:'Plank',sets:3,reps:'45 sec',muscle:'Core',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/plank.gif',tip:'Perfect form every set.',isCardio:false},
+         {name:'Hanging Leg Raise',sets:3,reps:'10–15',muscle:'Core',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/hanging-leg-raise.gif',tip:'Control every rep. Posterior pelvic tilt first.',isCardio:false}
+       ],
+       stretch:['Hip flexor stretch — 1 min each','World\'s greatest stretch — 30 sec each','Seated spinal twist — 30 sec each']},
+      {day:4,name:'Shoulders & Abs (B)',type:'strength',
+       warmup:['Band pull-aparts — 20 reps','Face pulls light — 15 reps','Arnold press light — 10 reps','Dead bugs × 10'],
+       exercises:[
+         {name:'Arnold Press',sets:4,reps:'10',muscle:'Full Shoulders',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/arnold-press.gif',tip:'10 kg. Rotate palms through full ROM.',isCardio:false},
+         {name:'Lateral Raise',sets:4,reps:'15',muscle:'Side Delts',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/lateral-raise.gif',tip:'6 kg. 3-sec negative. Quality over speed.',isCardio:false},
+         {name:'Rear Delt Fly',sets:3,reps:'12',muscle:'Rear Delts',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/incline-dumbbell-rear-delt-fly.gif',tip:'6 kg. Elbows slightly bent, squeeze at top.',isCardio:false},
+         {name:'Dumbbell Shoulder Press',sets:3,reps:'10',muscle:'Shoulders',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/seated-dumbbell-shoulder-press.gif',tip:'Try 15 kg if 12.5 kg felt easy Week A.',isCardio:false},
+         {name:'Plank',sets:3,reps:'45 sec',muscle:'Core',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/plank.gif',tip:'Squeeze glutes hard throughout.',isCardio:false},
+         {name:'Hanging Leg Raise',sets:3,reps:'12',muscle:'Lower Abs',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/hanging-leg-raise.gif',tip:'Add 2 reps vs Week A.',isCardio:false}
+       ],
+       stretch:['Chest opener — 30 sec','Lateral side bend — 20 sec each','Cat-cow — 8 reps','✅ 15 min incline walk (fat-loss protocol)']},
+      {day:5,name:'Legs & Glutes (B)',type:'strength',
+       warmup:['5–7 min cycling','Glute bridges × 15','Clamshells × 15 each','Hip circles × 10 each'],
+       exercises:[
+         {name:'Hip Thrust',sets:4,reps:'10',muscle:'Glutes',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/barbell-hip-thrust.gif',tip:'Week B: try 65 kg. Drive hips high.',isCardio:false},
+         {name:'Goblet Squat',sets:4,reps:'12',muscle:'Quads / Glutes',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/goblet-squat.gif',tip:'20 kg or try 22 kg. Torso upright.',isCardio:false},
+         {name:'Leg Press',sets:3,reps:'15',muscle:'Quads',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/leg-press.gif',tip:'100 kg. Higher reps for hypertrophy.',isCardio:false},
+         {name:'Romanian Deadlift',sets:3,reps:'12',muscle:'Hamstrings / Glutes',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/dumbbell-romanian-deadlift.gif',tip:'40 kg. Add 2 reps vs Week A.',isCardio:false},
+         {name:'Leg Curl',sets:4,reps:'12',muscle:'Hamstrings',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/lying-leg-curl.gif',tip:'30 kg. 3-sec eccentric every rep.',isCardio:false},
+         {name:'Leg Extension',sets:3,reps:'15',muscle:'Quads',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/leg-extension.gif',tip:'35 kg. Toes inward for VMO.',isCardio:false},
+         {name:'Calf Raises',sets:4,reps:'20',muscle:'Calves',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/standing-calf-raise.gif',tip:'Beat Week A. Full stretch.',isCardio:false}
+       ],
+       stretch:['Figure-four glute — 45 sec each','Deep squat hold — 45 sec','Seated hamstring — 45 sec','Calf stretch — 30 sec each','✅ 15 min incline walk (fat-loss protocol)']},
+      {day:6,name:'Cardio + Mobility',type:'cardio',
+       warmup:['5 min walk → light jog','Leg swings — 15 each','Thoracic rotations — 8 each'],
+       exercises:[
+         {name:'Stationary Cycling',sets:1,reps:'30–40 min',muscle:'Cardio',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/03/stationary-bike.gif',tip:'High cadence. Lower-back friendly.',isCardio:true,cardioType:'cycle'},
+         {name:'Jump Rope',sets:5,reps:'1 min on / 30 sec rest',muscle:'Cardio',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/03/jump-rope.gif',tip:'Rhythmic. Balls of feet.',isCardio:true,cardioType:'jumprope'},
+         {name:'Plank',sets:3,reps:'45–60 sec',muscle:'Core',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/plank.gif',tip:'Beat Week A duration.',isCardio:false},
+         {name:'Hanging Leg Raise',sets:3,reps:'12–15',muscle:'Core',img:'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/hanging-leg-raise.gif',tip:'Controlled every rep.',isCardio:false}
+       ],
+       stretch:['Full body mobility — 15 min','Hip flexor stretch — 1 min each','Legs up the wall — 2–3 min']},
+      {day:0,name:'Rest Day',type:'rest',isRest:true}
+    ]
+  }
+};
+WD_BASE.intense=JSON.parse(JSON.stringify(WD_BASE.standard));
+['weekA','weekB'].forEach(wk=>{
+  WD_BASE.intense[wk].forEach(day=>{
+    if(day.exercises)day.exercises.forEach(ex=>{
+      if(!ex.isCardio){ex.sets=Math.min(ex.sets+1,6);ex.reps=ex.reps.replace(/(\d+)/g,m=>String(parseInt(m)+2));}
+    });
+  });
+});
+
+const QUOTES=['Success is the sum of small efforts repeated day in and day out.','The only bad workout is the one that didn\'t happen.','Your body can stand almost anything. It\'s your mind you have to convince.','Push yourself because no one else is going to do it for you.','Great things never come from comfort zones.','Don\'t stop when you\'re tired. Stop when you\'re done.','Wake up with determination. Go to bed with satisfaction.','The harder you work for something, the greater you\'ll feel when you achieve it.','Discipline is doing what needs to be done, even when you don\'t feel like it.','Every champion was once a contender who refused to give up.'];
+
+// ═══════════════════════════════════════════════
+// STATE & STORAGE
+// ═══════════════════════════════════════════════
+let state={
+  profile:null,weightLog:[],workoutLog:{},workoutSets:{},
+  cardioLog:{},routineDone:{},recoveryLog:{},selfies:[],
+  theme:'dark',selectedPlan:'standard',customPlans:null,
+  customLibrary:[]
+};
+function load(){try{const s=localStorage.getItem('lifeOSv4');if(s){const p=JSON.parse(s);state={...state,...p};}}catch(e){}}
+function save(){try{localStorage.setItem('lifeOSv4',JSON.stringify(state));}catch(e){}}
+
+// Get effective WD (custom or base)
+function getWD(){
+  const base=JSON.parse(JSON.stringify(WD_BASE));
+  if(state.customPlans){
+    const pl=state.selectedPlan||'standard';
+    if(state.customPlans[pl]){
+      ['weekA','weekB'].forEach(wk=>{
+        if(state.customPlans[pl][wk]){
+          state.customPlans[pl][wk].forEach((customDay,i)=>{
+            if(customDay&&base[pl]&&base[pl][wk]&&base[pl][wk][i]){
+              base[pl][wk][i].exercises=customDay.exercises;
+              if(customDay.name)base[pl][wk][i].name=customDay.name;
+            }
+          });
+        }
+      });
+    }
+  }
+  return base;
+}
+
+// Get merged library (built-in + custom)
+function getLibrary(){return[...BUILT_IN_LIBRARY,...(state.customLibrary||[])];}
+
+// ═══════════════════════════════════════════════
+// ONBOARDING
+// ═══════════════════════════════════════════════
+let selPlan='';
+function selectPlan(p){
+  selPlan=p;
+  document.getElementById('plan-standard').style.borderColor=p==='standard'?'var(--accent)':'var(--border)';
+  document.getElementById('plan-intense').style.borderColor=p==='intense'?'var(--accent)':'var(--border)';
+  document.getElementById('pc-s').textContent=p==='standard'?'✅':'○';
+  document.getElementById('pc-i').textContent=p==='intense'?'✅':'○';
+}
+function obNext(step){
+  if(step===1){
+    const n=document.getElementById('ob-name').value.trim(),e=document.getElementById('ob-email').value.trim(),a=document.getElementById('ob-age').value,g=document.getElementById('ob-gender').value;
+    if(!n||!a||!g){showToast('Please fill in name, age and gender','error');return;}
+    document.getElementById('step1').style.display='none';document.getElementById('step2').style.display='block';
+    document.getElementById('sd1').classList.add('done');document.getElementById('sd2').classList.add('active');
+  }else if(step===2){
+    const h=parseFloat(document.getElementById('ob-height').value),w=parseFloat(document.getElementById('ob-weight').value),g=document.getElementById('ob-goal').value;
+    if(!h||!w||!g){showToast('Please fill in all fields','error');return;}
+    document.getElementById('step2').style.display='none';document.getElementById('step3').style.display='block';
+    document.getElementById('sd2').classList.add('done');document.getElementById('sd3').classList.add('active');
+  }
+}
+function obBack(step){
+  if(step===2){document.getElementById('step2').style.display='none';document.getElementById('step1').style.display='block';document.getElementById('sd2').classList.remove('active');document.getElementById('sd1').classList.remove('done');}
+  else if(step===3){document.getElementById('step3').style.display='none';document.getElementById('step2').style.display='block';document.getElementById('sd3').classList.remove('active');document.getElementById('sd2').classList.remove('done');}
+}
+document.addEventListener('input',function(e){
+  if(e.target.id==='ob-height'||e.target.id==='ob-weight'){
+    const h=parseFloat(document.getElementById('ob-height').value),w=parseFloat(document.getElementById('ob-weight').value);
+    if(h>0&&w>0){const b=calcBMI(w,h);document.getElementById('bmi-preview').style.display='block';document.getElementById('bmi-pv').textContent=b.toFixed(1);document.getElementById('bmi-pc').textContent=bmiCat(b).cat;}
+  }
+});
+function finishOnboarding(){
+  if(!selPlan){showToast('Please select a plan','error');return;}
+  const profile={name:document.getElementById('ob-name').value.trim(),email:document.getElementById('ob-email').value.trim()||'',age:parseInt(document.getElementById('ob-age').value),gender:document.getElementById('ob-gender').value,height:parseFloat(document.getElementById('ob-height').value),weight:parseFloat(document.getElementById('ob-weight').value),goal:document.getElementById('ob-goal').value,plan:selPlan,joinDate:new Date().toISOString()};
+  state.profile=profile;state.weightLog=[{date:todayStr(),weight:profile.weight}];state.selectedPlan=selPlan;
+  save();
+  document.getElementById('onboarding').style.opacity='0';document.getElementById('onboarding').style.transition='opacity .4s';
+  setTimeout(()=>{document.getElementById('onboarding').style.display='none';document.getElementById('app').style.display='block';initApp();playSound('success');showToast('Welcome to Life OS Gym! 🚀','success');},420);
+}
+
+// ═══════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════
+function todayStr(){return new Date().toISOString().split('T')[0]}
+function fmtDate(d){return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric'})}
+function calcBMI(w,h){return+(w/((h/100)**2)).toFixed(1)}
+function bmiCat(bmi){
+  if(bmi<18.5)return{cat:'Underweight',color:'var(--blue)'};
+  if(bmi<25)return{cat:'Normal Weight',color:'var(--success)'};
+  if(bmi<30)return{cat:'Overweight',color:'var(--orange)'};
+  return{cat:'Obese',color:'var(--red)'};
+}
+function getWeek(){const j=new Date(state.profile.joinDate),n=new Date(),d=Math.floor((n-j)/(864e5));return(Math.floor(d/7)%4)+1}
+function getDow(){return new Date().getDay()} // 0=Sun, 1=Mon ... 6=Sat
+function getTodayWorkout(){
+  const dow=getDow(),w=getWeek(),p=state.selectedPlan||'standard';
+  const WD=getWD();
+  const wk=(w===1||w===3)?WD[p].weekA:WD[p].weekB;
+  return wk.find(d=>d.day===dow)||null;
+}
+function getStreak(){let s=0,t=new Date();for(let i=0;i<365;i++){const d=new Date(t);d.setDate(d.getDate()-i);const k=d.toISOString().split('T')[0];if(state.workoutLog[k]?.completed)s++;else if(i>0)break;}return s}
+function showToast(msg,type='success'){
+  const c=document.getElementById('toastContainer'),t=document.createElement('div');
+  t.className=`toast ${type}`;t.innerHTML=`<span>${type==='success'?'✓':'⚠'}</span> ${msg}`;c.appendChild(t);
+  setTimeout(()=>{t.style.animation='toastOut .3s ease forwards';setTimeout(()=>t.remove(),300);},3200);
+}
+function showModal(html){document.getElementById('modalContent').innerHTML=html;document.getElementById('modalOverlay').classList.add('open')}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('open')}
+document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal()});
+function playSound(type){
+  try{const c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);
+    if(type==='success'){o.frequency.setValueAtTime(523,c.currentTime);o.frequency.setValueAtTime(659,c.currentTime+.1);o.frequency.setValueAtTime(784,c.currentTime+.2);g.gain.setValueAtTime(.1,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.5);o.start();o.stop(c.currentTime+.5);}
+    else if(type==='check'){o.frequency.setValueAtTime(880,c.currentTime);g.gain.setValueAtTime(.07,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.15);o.start();o.stop(c.currentTime+.15);}
+  }catch(e){}
+}
+function toggleTheme(){state.theme=state.theme==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',state.theme);save()}
+
+// DateTime
+function updateDateTime(){
+  const now=new Date();
+  const opts={weekday:'short',month:'short',day:'numeric'};
+  const timeOpts={hour:'2-digit',minute:'2-digit',hour12:true};
+  const dateStr=now.toLocaleDateString('en-IN',opts);
+  const timeStr=now.toLocaleTimeString('en-IN',timeOpts);
+  const full=`${dateStr} · ${timeStr}`;
+  const el=document.getElementById('topDateTime');if(el)el.textContent=full;
+  const hd=document.getElementById('hero-dt');if(hd)hd.textContent=timeStr;
+}
+setInterval(updateDateTime,1000);
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+function initApp(){
+  if(state.theme)document.documentElement.setAttribute('data-theme',state.theme);
+  updateDateTime();
+  renderDashboard();renderPlan();renderNutrition();renderProgress();renderProfile();renderTodayWorkout();
+  renderLibraryFilters();renderLibrary();
+}
+function switchPage(p){
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  document.getElementById('page-'+p)?.classList.add('active');
+  document.getElementById('nav-'+p)?.classList.add('active');
+  if(p==='today')renderTodayWorkout();
+  if(p==='progress')renderProgress();
+  if(p==='dashboard')renderDashboard();
+  if(p==='library')renderLibrary();
+}
+
+// ═══════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════
+function renderDashboard(){
+  const p=state.profile;if(!p)return;
+  const hr=new Date().getHours();
+  document.getElementById('dash-greeting').textContent=hr<12?'Good morning ☀️':hr<17?'Good afternoon 🌤':'Good evening 🌙';
+  document.getElementById('dash-name').textContent=p.name.split(' ')[0]+' 💪';
+  const tw=getTodayWorkout();
+  const goals={lose:'Cut & Lean',build:'Build & Bulk',maintain:'Maintain & Tone',strength:'Pure Strength'};
+  document.getElementById('dash-meta').textContent=`${goals[p.goal]||'Fitness'} • Week ${getWeek()} • ${tw?.name||'Rest'}`;
+  const streak=getStreak();
+  document.getElementById('streak-badge').innerHTML=`🔥 ${streak} day streak`;
+  document.getElementById('dash-streak').textContent=streak;
+  const lw=state.weightLog.length?state.weightLog[state.weightLog.length-1].weight:p.weight;
+  document.getElementById('dash-weight').textContent=lw.toFixed(1);
+  if(state.weightLog.length>=2){const dlt=(lw-state.weightLog[state.weightLog.length-2].weight).toFixed(1);const el=document.getElementById('dash-weight-delta');el.textContent=(dlt>0?'+':'')+dlt+' kg';el.className='stat-change '+(dlt>0?'up':'down');}
+  const bmi=calcBMI(lw,p.height),{cat,color}=bmiCat(bmi);
+  document.getElementById('dash-bmi').textContent=bmi;
+  document.getElementById('dash-bmi-cat').textContent=cat;document.getElementById('dash-bmi-cat').style.color=color;
+  document.getElementById('dash-workouts').textContent=Object.values(state.workoutLog).filter(v=>v.completed).length;
+  const now=new Date(),ws=new Date(now);ws.setDate(now.getDate()-now.getDay());
+  document.getElementById('dash-week-count').textContent=Object.entries(state.workoutLog).filter(([k,v])=>new Date(k)>=ws&&v.completed).length+' this week';
+  document.getElementById('today-workout-name').textContent=tw?.name||'Rest Day';
+  document.getElementById('today-weight').value=lw;
+  document.getElementById('motivation-quote').textContent=QUOTES[new Date().getDate()%QUOTES.length];
+  // Progress bar for today
+  if(tw&&!tw.isRest&&!tw.isRecovery){
+    const dk=todayStr();const sets=state.workoutSets[dk];
+    const totalSets=tw.exercises?.reduce((a,ex)=>a+(ex.isCardio?1:ex.sets),0)||0;
+    let done=0;
+    if(sets)Object.values(sets).forEach(ex=>Object.values(ex).forEach(s=>{if(s.done)done++;}));
+    const cLog=state.cardioLog[dk];if(cLog)Object.values(cLog).forEach(c=>{if(c.done)done++;});
+    const rLog=state.recoveryLog[dk];if(rLog)Object.values(rLog).forEach(r=>{if(r.done)done++;});
+    const pct=totalSets>0?Math.min(100,(done/totalSets)*100):0;
+    document.getElementById('today-progress-bar').style.width=pct+'%';
+    document.getElementById('today-progress-text').textContent=done+'/'+totalSets+' completed';
+  }
+  renderWeightChart();
+}
+function renderWeightChart(){
+  const canvas=document.getElementById('weightChart');if(!canvas)return;
+  const ex=Chart.getChart(canvas);if(ex)ex.destroy();
+  const last14=state.weightLog.slice(-14);
+  if(!last14.length)return;
+  new Chart(canvas,{type:'line',data:{labels:last14.map(e=>fmtDate(e.date)),datasets:[{data:last14.map(e=>e.weight),borderColor:'#c8f560',backgroundColor:'rgba(200,245,96,0.06)',borderWidth:2.5,pointBackgroundColor:'#c8f560',pointRadius:4,tension:0.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5a5a72',font:{size:10}}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5a5a72',font:{size:10}},min:Math.min(...last14.map(e=>e.weight))-2,max:Math.max(...last14.map(e=>e.weight))+2}}}});
+}
+function saveWeight(){
+  const w=parseFloat(document.getElementById('today-weight').value);
+  if(!w||w<20||w>500){showToast('Enter a valid weight','error');return;}
+  const t=todayStr(),idx=state.weightLog.findIndex(e=>e.date===t);
+  if(idx>=0)state.weightLog[idx].weight=w;else state.weightLog.push({date:t,weight:w});
+  save();renderDashboard();showToast('Weight saved! 📊','success');
+}
+function editPastWeight(){
+  const opts=[];
+  for(let i=1;i<=2;i++){const d=new Date();d.setDate(d.getDate()-i);const ds=d.toISOString().split('T')[0];opts.push({date:ds,label:i===1?'Yesterday':'2 days ago',weight:state.weightLog.find(e=>e.date===ds)?.weight||''});}
+  showModal(`<h3 style="margin-bottom:14px;font-family:var(--font-head)">Edit Past Weight</h3>${opts.map(o=>`<div class="form-group"><label class="form-label">${o.label} (${fmtDate(o.date)})</label><input class="form-input" id="pw-${o.date}" type="number" step="0.1" value="${o.weight}" placeholder="kg"></div>`).join('')}<div style="display:flex;gap:10px"><button class="btn btn-secondary" style="flex:1" onclick="closeModal()">Cancel</button><button class="btn btn-primary" style="flex:1" onclick="savePastW([${opts.map(o=>`'${o.date}'`).join(',')}])">Save</button></div>`);
+}
+function savePastW(dates){
+  dates.forEach(date=>{const v=parseFloat(document.getElementById('pw-'+date)?.value);if(v&&v>20&&v<500){const i=state.weightLog.findIndex(e=>e.date===date);if(i>=0)state.weightLog[i].weight=v;else state.weightLog.push({date,weight:v});}});
+  state.weightLog.sort((a,b)=>a.date.localeCompare(b.date));save();closeModal();renderDashboard();showToast('Updated!','success');
+}
+
+// ═══════════════════════════════════════════════
+// TODAY'S WORKOUT
+// ═══════════════════════════════════════════════
+function renderTodayWorkout(){
+  const el=document.getElementById('workout-content');
+  const w=getTodayWorkout();
+  const dk=todayStr();
+  const dow=getDow();
+
+  if(!w){
+    el.innerHTML=`<div class="rest-card"><div style="font-size:52px;margin-bottom:12px">🧘</div><h2 style="font-family:var(--font-head);font-size:22px;margin-bottom:8px">No workout found</h2><p style="color:var(--text2)">Check your plan settings.</p></div>`;
+    return;
+  }
+  if(w.isRest){
+    el.innerHTML=`<div class="rest-card"><div style="font-size:52px;margin-bottom:12px">😴</div><h2 style="font-family:var(--font-head);font-size:22px;margin-bottom:8px">Rest Day — ${DAY_NAMES[dow]}</h2><p style="color:var(--text2);font-size:14px">Rest, recover, hydrate. Come back strong tomorrow.</p></div>`;
+    return;
+  }
+
+  if(!state.workoutSets[dk])state.workoutSets[dk]={};
+  if(!state.cardioLog[dk])state.cardioLog[dk]={};
+  if(!state.routineDone[dk])state.routineDone[dk]={warmup:[],stretch:[]};
+  if(!state.recoveryLog[dk])state.recoveryLog[dk]={};
+
+  const isCompleted=state.workoutLog[dk]?.completed;
+  let html='';
+  if(isCompleted)html+=`<div class="workout-complete-banner"><div style="font-size:36px;margin-bottom:6px">🎉</div><h2 style="font-family:var(--font-head);font-size:19px">Workout Complete!</h2><p style="color:var(--text2);margin-top:2px;font-size:13px">Amazing work today, ${state.profile.name.split(' ')[0]}!</p></div>`;
+
+  // Header
+  html+=`<div class="card" style="background:linear-gradient(135deg,rgba(200,245,96,.06),transparent);border-color:rgba(200,245,96,.2)">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:7px">
+      <div>
+        <div style="font-size:11px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:.08em">${DAY_NAMES[dow]}</div>
+        <h2 style="font-size:20px;margin-top:2px">${w.name}</h2>
+        <div style="color:var(--text2);font-size:12px;margin-top:2px">Week ${getWeek()} · Day ${dow===0?'Sun':dow}</div>
+      </div>
+      <span class="tag" style="text-transform:capitalize">${w.type}</span>
+    </div>
+  </div>`;
+
+  // Recovery Day special
+  if(w.isRecovery){
+    html+=`<div class="card"><div class="section-header"><div class="section-icon recovery"><span>🌿</span></div><div class="section-title">Recovery Activities</div></div>
+    <div style="margin-bottom:4px;font-size:12px;color:var(--text2)">Tap to mark done · Enter duration (min)</div>`;
+    (w.activities||[]).forEach((act,i)=>{
+      const rData=state.recoveryLog[dk][i]||{};
+      html+=`<div class="recovery-item${rData.done?' done-item':''}" id="rec-item-${i}">
+        <div class="recovery-check${rData.done?' checked':''}" onclick="toggleRecovery(${i},'${dk}')"><span>${rData.done?'✓':''}</span></div>
+        <div class="recovery-label">${act}</div>
+        <input class="recovery-duration" type="number" placeholder="min" value="${rData.duration||''}" oninput="saveRecoveryDuration(${i},'${dk}',this.value)" title="Duration in minutes">
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+
+  // Warmup
+  if(w.warmup?.length){
+    html+=`<div class="card"><div class="section-header"><div class="section-icon warmup"><span>🔥</span></div><div class="section-title">Warmup (5–8 min)</div></div>
+    <ul class="warmup-list" id="warmup-list-${dk}">${w.warmup.map((item,i)=>`<li class="warmup-item${state.routineDone[dk].warmup[i]?' checked':''}" onclick="toggleWarmup(${i},'${dk}')">${item}</li>`).join('')}</ul></div>`;
+  }
+
+  // Exercises
+  if(!w.isRecovery&&w.exercises?.length){
+    html+=`<div class="section-header" style="margin-top:4px"><div class="section-icon workout"><span>💪</span></div><div class="section-title">Exercises</div></div>`;
+    w.exercises.forEach((ex,ei)=>{
+      if(!state.workoutSets[dk][ei])state.workoutSets[dk][ei]={};
+      const exSets=state.workoutSets[dk][ei];
+      const cData=state.cardioLog[dk][ei]||{};
+
+      if(ex.isCardio){
+        const isDone=cData.done||false;
+        const cType=ex.cardioType||getCardioType(ex.name);
+        const fields=CARDIO_FIELDS[cType]||CARDIO_FIELDS.general;
+        html+=`<div class="exercise-card${isDone?' is-done':''}" id="ex-card-${ei}">
+          <div class="exercise-header" onclick="toggleExercise(${ei})">
+            <img class="exercise-img" src="${ex.img}" alt="${ex.name}" onerror="this.style.opacity='.2'">
+            <div style="flex:1">
+              <div class="exercise-name">${isDone?'✅ ':''}${ex.name}</div>
+              <div class="exercise-meta">${ex.reps} · ${ex.muscle}</div>
+              <div class="exercise-tip">${ex.tip}</div>
+            </div>
+            <div class="exercise-sets-badge${isDone?' done-badge':''}">${isDone?'Done':'Cardio'}</div>
+          </div>
+          <div class="exercise-body" id="ex-body-${ei}">
+            <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;padding:10px 0 4px">📊 Log Session</div>
+            <div class="cardio-fields">${fields.map(f=>`<div class="cardio-field"><div class="cardio-label">${f.label}</div><input class="cardio-input" id="cf-${ei}-${f.key}" type="${f.type}" placeholder="${f.placeholder}" ${f.step?`step="${f.step}"`:''}value="${cData[f.key]||''}" oninput="saveCardio(${ei},'${dk}')"></div>`).join('')}</div>
+            <div class="cardio-done-row"><div style="font-size:12px;color:var(--text2)">Mark when complete</div><button class="btn-cardio-done${isDone?' done':''}" id="cardio-done-${ei}" onclick="toggleCardio(${ei},'${dk}')">✓ ${isDone?'Done!':'Mark Done'}</button></div>
+          </div>
+        </div>`;
+      }else{
+        const completedSets=Object.values(exSets).filter(s=>s.done).length;
+        const allDone=completedSets>=ex.sets;
+        html+=`<div class="exercise-card${allDone?' is-done':''}" id="ex-card-${ei}">
+          <div class="exercise-header" onclick="toggleExercise(${ei})">
+            <img class="exercise-img" src="${ex.img}" alt="${ex.name}" onerror="this.style.opacity='.2'">
+            <div style="flex:1">
+              <div class="exercise-name">${allDone?'✅ ':''}${ex.name}</div>
+              <div class="exercise-meta">${ex.sets} sets × ${ex.reps} · ${ex.muscle}</div>
+              <div class="exercise-tip">${ex.tip}</div>
+            </div>
+            <div class="exercise-sets-badge${allDone?' done-badge':''}">${completedSets}/${ex.sets}</div>
+          </div>
+          <div class="exercise-body" id="ex-body-${ei}">
+            <div class="set-labels"><div class="set-label">Set</div><div class="set-label">Reps</div><div class="set-label">kg</div><div class="set-label">Notes</div><div class="set-label"></div></div>
+            ${Array.from({length:ex.sets},(_,i)=>{const sd=exSets[i]||{};return `<div class="set-row"><div class="set-num${sd.done?' done':''}" id="sn-${ei}-${i}">${i+1}</div><input class="input-mini" id="r-${ei}-${i}" type="number" placeholder="${ex.reps.split('–')[0]||12}" value="${sd.reps||''}" oninput="saveSet(${ei},${i},'${dk}')"><input class="input-mini" id="w-${ei}-${i}" type="number" placeholder="kg" step="0.5" value="${sd.weight||''}" oninput="saveSet(${ei},${i},'${dk}')"><input class="input-mini" id="n-${ei}-${i}" type="text" placeholder="RPE…" value="${sd.notes||''}" oninput="saveSet(${ei},${i},'${dk}')"><button class="check-btn${sd.done?' checked':''}" id="cb-${ei}-${i}" onclick="toggleSet(${ei},${i},'${dk}')">✓</button></div>`;}).join('')}
+            ${renderWoWAnalysis(ex.name,dk)}
+          </div>
+        </div>`;
+      }
+    });
+  }
+
+  // Stretch
+  if(w.stretch?.length){
+    html+=`<div class="card" style="margin-top:4px"><div class="section-header"><div class="section-icon stretch"><span>🧘</span></div><div class="section-title">Cool-Down Stretches</div></div>
+    <ul class="stretch-list" id="stretch-list-${dk}">${w.stretch.map((s,i)=>`<li class="stretch-item${state.routineDone[dk].stretch[i]?' checked':''}" onclick="toggleStretch(${i},'${dk}')">${s}</li>`).join('')}</ul></div>`;
+  }
+
+  // Selfie + complete
+  html+=`<div class="card"><div class="card-header"><div class="card-title">📸 Workout Selfie</div></div><p style="color:var(--text2);font-size:12px;margin-bottom:9px">Capture your progress.</p><div style="display:flex;gap:9px"><label class="btn btn-secondary btn-sm" style="cursor:pointer">📁 Upload<input type="file" accept="image/*" style="display:none" onchange="handleSelfie(event,'${dk}')"></label><label class="btn btn-secondary btn-sm" style="cursor:pointer">📷 Camera<input type="file" accept="image/*" capture="user" style="display:none" onchange="handleSelfie(event,'${dk}')"></label></div></div>`;
+  html+=`<button class="btn btn-primary btn-full" style="padding:15px;font-size:15px;margin-top:4px" onclick="completeWorkout('${dk}')">🏆 Complete Workout</button><div style="height:14px"></div>`;
+
+  el.innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════
+// WEEK-ON-WEEK PROGRESS ANALYSIS
+// ═══════════════════════════════════════════════
+function renderWoWAnalysis(exName,todayDk){
+  // Get last 7 days and prior 7 days
+  const thisWeekDates=[],lastWeekDates=[];
+  for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()-i);thisWeekDates.push(d.toISOString().split('T')[0]);}
+  for(let i=7;i<14;i++){const d=new Date();d.setDate(d.getDate()-i);lastWeekDates.push(d.toISOString().split('T')[0]);}
+
+  function getStats(dates){
+    const reps=[],weights=[],setsCount=[];
+    dates.forEach(dk=>{
+      const ws=state.workoutSets[dk];if(!ws)return;
+      Object.entries(ws).forEach(([eiStr,exSets])=>{
+        // Try to match exercise by index in that day's workout
+        const d=new Date(dk);const dow=d.getDay();const week=getWeek();
+        const p=state.selectedPlan||'standard';const WD=getWD();
+        const wkData=(week===1||week===3)?WD[p].weekA:WD[p].weekB;
+        const dayData=wkData.find(dd=>dd.day===dow);
+        if(!dayData?.exercises)return;
+        const ei=parseInt(eiStr);
+        const ex=dayData.exercises[ei];
+        if(!ex||ex.name!==exName)return;
+        const doneSets=Object.values(exSets).filter(s=>s.done);
+        if(!doneSets.length)return;
+        setsCount.push(doneSets.length);
+        doneSets.forEach(s=>{if(s.reps)reps.push(parseFloat(s.reps));if(s.weight)weights.push(parseFloat(s.weight));});
+      });
+    });
+    const avgReps=reps.length?+(reps.reduce((a,b)=>a+b,0)/reps.length).toFixed(1):null;
+    const avgWeight=weights.length?+(weights.reduce((a,b)=>a+b,0)/weights.length).toFixed(1):null;
+    const avgSets=setsCount.length?+(setsCount.reduce((a,b)=>a+b,0)/setsCount.length).toFixed(1):null;
+    return{avgReps,avgWeight,avgSets,sessions:setsCount.length};
+  }
+
+  const curr=getStats(thisWeekDates);
+  const prev=getStats(lastWeekDates);
+  if(!curr.sessions&&!prev.sessions)return'';
+
+  function trendBadge(curr,prev,unit=''){
+    if(curr===null||prev===null)return`<span class="wow-badge wow-same">—</span>`;
+    const diff=curr-prev;
+    if(Math.abs(diff)<0.1)return`<span class="wow-badge wow-same">= Same</span>`;
+    if(diff>0)return`<span class="wow-badge wow-up">▲ +${Math.abs(diff).toFixed(1)}${unit}</span>`;
+    return`<span class="wow-badge wow-down">▼ -${Math.abs(diff).toFixed(1)}${unit}</span>`;
+  }
+
+  return`<div class="analysis-card">
+    <div class="analysis-title">📈 Week-on-Week Progress</div>
+    ${curr.avgReps!==null||prev.avgReps!==null?`<div class="analysis-row"><span class="analysis-metric">Avg Reps</span><div style="display:flex;align-items:center;gap:8px"><span class="analysis-val">${curr.avgReps??'—'}</span>${trendBadge(curr.avgReps,prev.avgReps,' reps')}</div></div>`:''}
+    ${curr.avgWeight!==null||prev.avgWeight!==null?`<div class="analysis-row"><span class="analysis-metric">Avg Weight</span><div style="display:flex;align-items:center;gap:8px"><span class="analysis-val">${curr.avgWeight??'—'} kg</span>${trendBadge(curr.avgWeight,prev.avgWeight,' kg')}</div></div>`:''}
+    ${curr.avgSets!==null?`<div class="analysis-row"><span class="analysis-metric">Sets Done</span><div style="display:flex;align-items:center;gap:8px"><span class="analysis-val">${curr.avgSets??'—'}</span>${trendBadge(curr.avgSets,prev.avgSets)}</div></div>`:''}
+  </div>`;
+}
+
+function toggleExercise(idx){document.getElementById('ex-body-'+idx)?.classList.toggle('open')}
+function toggleWarmup(idx,dk){
+  if(!state.routineDone[dk])state.routineDone[dk]={warmup:[],stretch:[]};
+  state.routineDone[dk].warmup[idx]=!state.routineDone[dk].warmup[idx];save();
+  document.querySelectorAll(`#warmup-list-${dk} .warmup-item`)[idx]?.classList.toggle('checked',state.routineDone[dk].warmup[idx]);
+}
+function toggleStretch(idx,dk){
+  if(!state.routineDone[dk])state.routineDone[dk]={warmup:[],stretch:[]};
+  state.routineDone[dk].stretch[idx]=!state.routineDone[dk].stretch[idx];save();
+  document.querySelectorAll(`#stretch-list-${dk} .stretch-item`)[idx]?.classList.toggle('checked',state.routineDone[dk].stretch[idx]);
+}
+function toggleRecovery(idx,dk){
+  if(!state.recoveryLog[dk])state.recoveryLog[dk]={};
+  if(!state.recoveryLog[dk][idx])state.recoveryLog[dk][idx]={};
+  state.recoveryLog[dk][idx].done=!state.recoveryLog[dk][idx].done;save();
+  const item=document.getElementById('rec-item-'+idx);
+  if(item)item.classList.toggle('done-item',state.recoveryLog[dk][idx].done);
+  const chk=item?.querySelector('.recovery-check');
+  if(chk){chk.classList.toggle('checked',state.recoveryLog[dk][idx].done);chk.querySelector('span').textContent=state.recoveryLog[dk][idx].done?'✓':'';}
+  if(state.recoveryLog[dk][idx].done)playSound('check');
+}
+function saveRecoveryDuration(idx,dk,val){
+  if(!state.recoveryLog[dk])state.recoveryLog[dk]={};
+  if(!state.recoveryLog[dk][idx])state.recoveryLog[dk][idx]={};
+  state.recoveryLog[dk][idx].duration=val;save();
+}
+function saveSet(ei,si,dk){
+  const r=document.getElementById(`r-${ei}-${si}`)?.value,w=document.getElementById(`w-${ei}-${si}`)?.value,n=document.getElementById(`n-${ei}-${si}`)?.value;
+  if(!state.workoutSets[dk])state.workoutSets[dk]={};if(!state.workoutSets[dk][ei])state.workoutSets[dk][ei]={};if(!state.workoutSets[dk][ei][si])state.workoutSets[dk][ei][si]={};
+  Object.assign(state.workoutSets[dk][ei][si],{reps:r,weight:w,notes:n});save();
+}
+function toggleSet(ei,si,dk){
+  if(!state.workoutSets[dk])state.workoutSets[dk]={};if(!state.workoutSets[dk][ei])state.workoutSets[dk][ei]={};if(!state.workoutSets[dk][ei][si])state.workoutSets[dk][ei][si]={};
+  const s=state.workoutSets[dk][ei][si];s.done=!s.done;saveSet(ei,si,dk);
+  document.getElementById(`cb-${ei}-${si}`)?.classList.toggle('checked',s.done);
+  document.getElementById(`sn-${ei}-${si}`)?.classList.toggle('done',s.done);
+  if(s.done)playSound('check');
+  const w=getTodayWorkout();if(w?.exercises?.[ei]){const total=w.exercises[ei].sets;const done=Object.values(state.workoutSets[dk][ei]).filter(x=>x.done).length;const card=document.getElementById('ex-card-'+ei);const badge=card?.querySelector('.exercise-sets-badge');if(badge){badge.textContent=`${done}/${total}`;badge.className='exercise-sets-badge'+(done>=total?' done-badge':'');}if(done>=total){const nm=card?.querySelector('.exercise-name');if(nm&&!nm.textContent.startsWith('✅'))nm.textContent='✅ '+w.exercises[ei].name;card?.classList.add('is-done');}renderDashboard();}
+}
+function saveCardio(ei,dk){
+  if(!state.cardioLog[dk])state.cardioLog[dk]={};if(!state.cardioLog[dk][ei])state.cardioLog[dk][ei]={};
+  const w=getTodayWorkout();if(!w?.exercises?.[ei])return;
+  const cType=w.exercises[ei].cardioType||getCardioType(w.exercises[ei].name);
+  const fields=CARDIO_FIELDS[cType]||CARDIO_FIELDS.general;
+  fields.forEach(f=>{const el=document.getElementById(`cf-${ei}-${f.key}`);if(el)state.cardioLog[dk][ei][f.key]=el.value;});
+  save();
+}
+function toggleCardio(ei,dk){
+  if(!state.cardioLog[dk])state.cardioLog[dk]={};if(!state.cardioLog[dk][ei])state.cardioLog[dk][ei]={};
+  state.cardioLog[dk][ei].done=!state.cardioLog[dk][ei].done;save();
+  const isDone=state.cardioLog[dk][ei].done;
+  const btn=document.getElementById('cardio-done-'+ei);
+  if(btn){btn.className='btn-cardio-done'+(isDone?' done':'');btn.textContent='✓ '+(isDone?'Done!':'Mark Done');}
+  const card=document.getElementById('ex-card-'+ei);
+  if(card){card.classList.toggle('is-done',isDone);const badge=card.querySelector('.exercise-sets-badge');if(badge){badge.textContent=isDone?'Done':'Cardio';badge.className='exercise-sets-badge'+(isDone?' done-badge':'');}const nm=card.querySelector('.exercise-name');const w=getTodayWorkout();if(nm&&w)nm.textContent=(isDone?'✅ ':'')+w.exercises[ei]?.name;}
+  if(isDone)playSound('check');
+  renderDashboard();
+}
+function completeWorkout(dk){
+  state.workoutLog[dk]={completed:true,date:dk};save();
+  renderTodayWorkout();renderDashboard();
+  showToast('🏆 Workout complete! You crushed it!','success');playSound('success');
+  setTimeout(()=>document.getElementById('page-today').scrollTo({top:0,behavior:'smooth'}),200);
+}
+function handleSelfie(evt,dk){
+  const file=evt.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){const imgEl=new Image();imgEl.onload=function(){const c=document.createElement('canvas');const maxS=400;let w=imgEl.width,h=imgEl.height;if(w>maxS||h>maxS){const r=Math.min(maxS/w,maxS/h);w=Math.round(w*r);h=Math.round(h*r);}c.width=w;c.height=h;c.getContext('2d').drawImage(imgEl,0,0,w,h);const comp=c.toDataURL('image/jpeg',0.7);const i=state.selfies.findIndex(s=>s.date===dk);if(i>=0)state.selfies[i].img=comp;else state.selfies.push({date:dk,img:comp});save();showToast('📸 Photo saved!','success');};imgEl.src=e.target.result;};reader.readAsDataURL(file);
+}
+
+// ═══════════════════════════════════════════════
+// PLAN (with day names + edit exercises)
+// ═══════════════════════════════════════════════
+function renderPlan(){
+  const plan=state.selectedPlan||'standard',dow=getDow(),week=getWeek();
+  const WD=getWD();
+  let html=`<div class="card" style="background:linear-gradient(135deg,rgba(200,245,96,.06),transparent);border-color:rgba(200,245,96,.2)">
+    <div style="font-size:11px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Active Plan</div>
+    <div style="font-family:var(--font-head);font-size:17px;font-weight:700;margin-top:3px">${plan==='standard'?'⚡ Standard':'🔥 Intense'} Program</div>
+    <div style="color:var(--text2);font-size:12px;margin-top:2px">4-week rotating · Week ${week}/4 · Today is ${DAY_NAMES[dow]}</div>
+  </div>`;
+  ['weekA','weekB'].forEach((wkKey,wi)=>{
+    const wk=WD[plan][wkKey];
+    const cur=(wi===0&&(week===1||week===3))||(wi===1&&(week===2||week===4));
+    html+=`<div class="plan-week"><div class="plan-week-title">${cur?'▶ ':''}<span style="${cur?'':'opacity:.5'}">${wi===0?'Week A (1 & 3)':'Week B (2 & 4)'}</span></div>`;
+    wk.forEach((day,di)=>{
+      const dayName=DAY_NAMES[day.day];const dayShort=DAY_SHORT[day.day]||'';
+      const isToday=cur&&day.day===dow;
+      const tc=day.type==='strength'?'strength':day.type==='cardio'?'cardio':day.type==='recovery'?'recovery':'rest';
+      html+=`<div class="day-row ${day.isRest||day.isRecovery?'':'clickable'}" ${day.isRest||day.isRecovery?'':''}>
+        <div class="day-num${isToday?' today-num':''}">${dayShort}</div>
+        <div style="flex:1">
+          <div class="day-name">${day.name}</div>
+          <div class="day-focus">${day.exercises?.map(e=>e.muscle).filter((v,i,a)=>a.indexOf(v)===i).slice(0,3).join(' · ')||'Recovery / Rest'}</div>
+        </div>
+        <span class="day-badge badge-${tc}">${isToday?'TODAY':tc.toUpperCase()}</span>
+        ${day.isRest||day.isRecovery?'':` <button class="plan-edit-btn" onclick="event.stopPropagation();editDayExercises(${wi},'${wkKey}',${di})">✏️ Edit</button>`}
+      </div>`;
+    });
+    html+=`</div>`;
+  });
+  document.getElementById('plan-content').innerHTML=html;
+}
+
+function editDayExercises(wi,wkKey,di){
+  const plan=state.selectedPlan||'standard';
+  const WD=getWD();
+  const day=WD[plan][wkKey][di];
+  if(!day)return;
+
+  // Build exercise edit list
+  const exItems=day.exercises.map((ex,i)=>`
+    <div style="display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--border)">
+      <img src="${ex.img}" style="width:54px;height:40px;border-radius:7px;object-fit:cover;background:var(--bg3)" onerror="this.style.opacity='.2'">
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:13px">${ex.name}</div>
+        <div style="font-size:11px;color:var(--text2)">${ex.isCardio?ex.reps:ex.sets+' sets × '+ex.reps} · ${ex.muscle}</div>
+      </div>
+      <button onclick="removePlanExercise(${wi},'${wkKey}',${di},${i})" style="background:rgba(255,77,109,.12);color:var(--red);border:1px solid rgba(255,77,109,.3);border-radius:7px;padding:4px 9px;font-size:11px;cursor:pointer;font-family:var(--font-body)">Remove</button>
+    </div>`).join('');
+
+  // Library exercises to add
+  const lib=getLibrary();
+  const libOpts=lib.map(ex=>`<option value="${ex.id}">${ex.name} (${ex.muscle})</option>`).join('');
+
+  showModal(`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <h3 style="font-family:var(--font-head)">${day.name}</h3>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal()">✕</button>
+    </div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:12px">${DAY_NAMES[day.day]} · ${wkKey==='weekA'?'Week A':'Week B'}</div>
+    <div style="max-height:220px;overflow-y:auto;margin-bottom:14px">${exItems||'<div style="color:var(--text3);padding:14px;text-align:center">No exercises yet</div>'}</div>
+    <div style="border-top:1px solid var(--border);padding-top:14px">
+      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px">ADD FROM LIBRARY</div>
+      <select class="form-input" id="add-ex-sel" style="margin-bottom:9px">${libOpts}</select>
+      <div class="form-row" style="margin-bottom:9px">
+        <div><label class="form-label">Sets</label><input class="form-input" id="add-ex-sets" type="number" placeholder="4" min="1" max="8" value="3"></div>
+        <div><label class="form-label">Reps / Duration</label><input class="form-input" id="add-ex-reps" type="text" placeholder="10–12 or 30 min"></div>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="addExerciseToPlan(${wi},'${wkKey}',${di})">+ Add Exercise</button>
+    </div>
+    <button class="btn btn-secondary btn-full" style="margin-top:8px" onclick="closeModal()">Done</button>
+  `);
+}
+
+function removePlanExercise(wi,wkKey,di,exIdx){
+  const plan=state.selectedPlan||'standard';
+  const WD=getWD();
+  const day=WD[plan][wkKey][di];
+  if(!state.customPlans)state.customPlans={};
+  if(!state.customPlans[plan])state.customPlans[plan]={weekA:{},weekB:{}};
+  if(!state.customPlans[plan][wkKey])state.customPlans[plan][wkKey]={};
+  if(!state.customPlans[plan][wkKey][di])state.customPlans[plan][wkKey][di]={exercises:[...day.exercises]};
+  state.customPlans[plan][wkKey][di].exercises.splice(exIdx,1);
+  save();renderPlan();showToast('Exercise removed','success');
+  editDayExercises(wi,wkKey,di);
+}
+
+function addExerciseToPlan(wi,wkKey,di){
+  const plan=state.selectedPlan||'standard';
+  const WD=getWD();
+  const day=WD[plan][wkKey][di];
+  const selId=document.getElementById('add-ex-sel')?.value;
+  const sets=parseInt(document.getElementById('add-ex-sets')?.value)||3;
+  const reps=document.getElementById('add-ex-reps')?.value||'10–12';
+  const lib=getLibrary();
+  const libEx=lib.find(e=>e.id===selId);
+  if(!libEx){showToast('Select an exercise','error');return;}
+
+  if(!state.customPlans)state.customPlans={};
+  if(!state.customPlans[plan])state.customPlans[plan]={weekA:{},weekB:{}};
+  if(!state.customPlans[plan][wkKey])state.customPlans[plan][wkKey]={};
+  if(!state.customPlans[plan][wkKey][di])state.customPlans[plan][wkKey][di]={exercises:[...day.exercises]};
+
+  const newEx={
+    name:libEx.name,sets,reps,muscle:libEx.muscle,
+    img:libEx.img||'',tip:libEx.tip||'',
+    isCardio:libEx.isCardio||false,cardioType:libEx.cardioType||undefined
+  };
+  state.customPlans[plan][wkKey][di].exercises.push(newEx);
+  save();renderPlan();showToast(`${libEx.name} added!`,'success');
+  closeModal();
+}
+
+// ═══════════════════════════════════════════════
+// LIBRARY
+// ═══════════════════════════════════════════════
+const MUSCLE_GROUPS=['All','Chest','Back','Shoulders','Biceps','Triceps','Legs','Core','Cardio'];
+let activeFilter='All';
+
+function renderLibraryFilters(){
+  const c=document.getElementById('lib-filter-chips');
+  c.innerHTML=MUSCLE_GROUPS.map(g=>`<button class="chip${g===activeFilter?' active':''}" onclick="setFilter('${g}')">${g}</button>`).join('');
+}
+function setFilter(g){activeFilter=g;renderLibraryFilters();renderLibrary();}
+function renderLibrary(){
+  const q=(document.getElementById('lib-search-input')?.value||'').toLowerCase();
+  const lib=getLibrary();
+  const items=lib.filter(ex=>{
+    const matchFilter=activeFilter==='All'||ex.muscleKey?.toLowerCase()===activeFilter.toLowerCase()||ex.muscle?.toLowerCase().includes(activeFilter.toLowerCase());
+    const matchSearch=!q||ex.name.toLowerCase().includes(q)||ex.muscle.toLowerCase().includes(q)||ex.equipment?.toLowerCase().includes(q);
+    return matchFilter&&matchSearch;
+  });
+  const c=document.getElementById('lib-content');
+  if(!items.length){c.innerHTML='<div class="card" style="text-align:center;padding:32px;color:var(--text2)">No exercises found.</div>';return;}
+  c.innerHTML=items.map(ex=>{
+    const mc=`mc-${ex.muscleKey||''}`;
+    const diff=`diff-${ex.difficulty||'beginner'}`;
+    const isCustom=!BUILT_IN_LIBRARY.find(e=>e.id===ex.id);
+    return `<div class="lib-exercise-card">
+      <div class="lib-ex-header" onclick="toggleLibEx('${ex.id}')">
+        <img class="lib-ex-img" src="${ex.img||''}" alt="${ex.name}" onerror="this.style.opacity='.2'">
+        <div style="flex:1">
+          <div class="lib-ex-name">${ex.name}${isCustom?` <span class="tag" style="font-size:9px;margin-left:4px">Custom</span>`:''}</div>
+          <div class="lib-ex-meta">${ex.equipment||''} · ${ex.targetSets||''}</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+            <span class="lib-muscle-badge ${mc}">${ex.muscle}</span>
+            <span class="tag ${diff}" style="border-radius:12px">${ex.difficulty||'beginner'}</span>
+          </div>
+        </div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" style="flex-shrink:0;color:var(--text3);transition:.2s" id="lib-arrow-${ex.id}"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="lib-ex-body" id="lib-body-${ex.id}">
+        <img class="lib-ex-big-img" src="${ex.img||''}" alt="${ex.name}" onerror="this.style.opacity='.15'">
+        <p style="font-size:13px;color:var(--text2);margin-bottom:11px">${ex.desc||''}</p>
+        <div class="equip-tag">🏋️ ${ex.equipment||'—'}</div>
+        <div class="muscle-tags">
+          ${(ex.primary||[]).map(m=>`<span class="muscle-tag primary">${m}</span>`).join('')}
+          ${(ex.secondary||[]).map(m=>`<span class="muscle-tag secondary">${m}</span>`).join('')}
+        </div>
+        <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px">Step-by-Step</div>
+        <ol class="steps-list">${(ex.steps||[]).map((s,i)=>`<li class="step-item"><div class="step-num">${i+1}</div><div>${s}</div></li>`).join('')}</ol>
+        ${ex.tip?`<div class="pro-tip"><strong>💡 Pro Tip:</strong> ${ex.tip}</div>`:''}
+        ${isCustom?`<button onclick="deleteCustomExercise('${ex.id}')" class="btn btn-danger btn-sm btn-full" style="margin-top:10px">🗑 Remove Custom Exercise</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+function toggleLibEx(id){
+  const body=document.getElementById('lib-body-'+id),arrow=document.getElementById('lib-arrow-'+id);
+  body?.classList.toggle('open');if(arrow)arrow.style.transform=body?.classList.contains('open')?'rotate(180deg)':'';
+}
+
+function showAddExerciseModal(){
+  showModal(`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <h3 style="font-family:var(--font-head)">Add Custom Exercise</h3>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal()">✕</button>
+    </div>
+    <div class="form-group"><label class="form-label">Exercise Name *</label><input class="form-input" id="ce-name" placeholder="e.g. Cable Kickback" type="text"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Muscle Group</label>
+        <select class="form-input" id="ce-muscle"><option value="chest">Chest</option><option value="back">Back</option><option value="shoulders">Shoulders</option><option value="biceps">Biceps</option><option value="triceps">Triceps</option><option value="legs">Legs</option><option value="core">Core</option><option value="cardio">Cardio</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">Equipment</label><input class="form-input" id="ce-equipment" placeholder="e.g. Cable Machine" type="text"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Difficulty</label>
+        <select class="form-input" id="ce-difficulty"><option value="beginner">Beginner</option><option value="intermediate">Intermediate</option><option value="advanced">Advanced</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">Target Sets</label><input class="form-input" id="ce-target" placeholder="3 × 12–15" type="text"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Description</label><textarea class="form-input" id="ce-desc" rows="2" placeholder="Brief description of the exercise..."></textarea></div>
+    <div class="form-group"><label class="form-label">Steps (one per line)</label><textarea class="form-input" id="ce-steps" rows="4" placeholder="Step 1&#10;Step 2&#10;Step 3"></textarea></div>
+    <div class="form-group"><label class="form-label">Pro Tip</label><input class="form-input" id="ce-tip" placeholder="Key coaching cue..." type="text"></div>
+    <div class="form-group"><label class="form-label">GIF / Image URL (optional)</label><input class="form-input" id="ce-img" placeholder="https://..." type="url"></div>
+    <div style="display:flex;gap:10px;margin-top:6px">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" style="flex:1" onclick="saveCustomExercise()">Add to Library</button>
+    </div>
+  `);
+}
+
+function saveCustomExercise(){
+  const name=document.getElementById('ce-name')?.value.trim();
+  if(!name){showToast('Exercise name required','error');return;}
+  const muscleKey=document.getElementById('ce-muscle')?.value||'core';
+  const muscleLabels={chest:'Chest',back:'Back',shoulders:'Shoulders',biceps:'Biceps',triceps:'Triceps',legs:'Legs',core:'Core',cardio:'Cardio'};
+  const steps=(document.getElementById('ce-steps')?.value||'').split('\n').filter(s=>s.trim());
+  const newEx={
+    id:'custom-'+Date.now(),
+    name,
+    muscle:muscleLabels[muscleKey]||'Custom',
+    muscleKey,
+    equipment:document.getElementById('ce-equipment')?.value.trim()||'Various',
+    difficulty:document.getElementById('ce-difficulty')?.value||'beginner',
+    targetSets:document.getElementById('ce-target')?.value.trim()||'3 × 10–12',
+    desc:document.getElementById('ce-desc')?.value.trim()||name,
+    steps:steps.length?steps:[name],
+    tip:document.getElementById('ce-tip')?.value.trim()||'Focus on form.',
+    img:document.getElementById('ce-img')?.value.trim()||'',
+    primary:[muscleLabels[muscleKey]||'Custom'],secondary:[],
+    isCardio:muscleKey==='cardio',
+    cardioType:muscleKey==='cardio'?'general':undefined
+  };
+  if(!state.customLibrary)state.customLibrary=[];
+  state.customLibrary.push(newEx);
+  save();closeModal();renderLibrary();
+  showToast(`${name} added to library! 💪`,'success');
+}
+
+function deleteCustomExercise(id){
+  state.customLibrary=(state.customLibrary||[]).filter(e=>e.id!==id);
+  save();renderLibrary();showToast('Exercise removed','success');
+}
+
+// ═══════════════════════════════════════════════
+// NUTRITION
+// ═══════════════════════════════════════════════
+function renderNutrition(){
+  const p=state.profile;if(!p)return;
+  const lw=state.weightLog.length?state.weightLog[state.weightLog.length-1].weight:p.weight;
+  const bmr=p.gender==='female'?447.593+(9.247*lw)+(3.098*p.height)-(4.330*p.age):88.362+(13.397*lw)+(4.799*p.height)-(5.677*p.age);
+  const tdee=Math.round(bmr*1.55);
+  let cal=tdee,prot=Math.round(lw*2),carb,fat;
+  if(p.goal==='lose'){cal=Math.round(tdee*.82);carb=Math.round((cal*.35)/4);fat=Math.round((cal*.28)/9);}
+  else if(p.goal==='build'){cal=Math.round(tdee*1.1);carb=Math.round((cal*.45)/4);fat=Math.round((cal*.25)/9);}
+  else{carb=Math.round((cal*.4)/4);fat=Math.round((cal*.3)/9);}
+  document.getElementById('nutrition-content').innerHTML=`
+    <div class="card" style="background:linear-gradient(135deg,rgba(86,227,159,.06),transparent);border-color:rgba(86,227,159,.2)">
+      <div style="font-size:11px;color:var(--success);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Personalized For You</div>
+      <div style="font-family:var(--font-head);font-size:17px;font-weight:700;margin-top:3px">${p.name.split(' ')[0]}'s Nutrition Plan</div>
+      <div style="color:var(--text2);font-size:12px;margin-top:2px">Based on your ${p.goal==='lose'?'weight loss':p.goal==='build'?'muscle building':'maintenance'} goal</div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px">Daily Targets</div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:10px">TDEE: ${tdee} kcal/day</div>
+      <div class="macro-grid">
+        <div class="macro-card" style="border-color:rgba(200,245,96,.3)"><div class="macro-value" style="color:var(--accent)">${cal}</div><div class="macro-unit">kcal</div><div class="macro-label">Calories</div></div>
+        <div class="macro-card" style="border-color:rgba(77,159,255,.3)"><div class="macro-value" style="color:var(--blue)">${prot}g</div><div class="macro-unit">protein</div><div class="macro-label">Protein</div></div>
+        <div class="macro-card" style="border-color:rgba(155,109,255,.3)"><div class="macro-value" style="color:var(--purple)">${carb}g</div><div class="macro-unit">carbs</div><div class="macro-label">Carbs</div></div>
+        <div class="macro-card" style="border-color:rgba(255,140,66,.3)"><div class="macro-value" style="color:var(--orange)">${fat}g</div><div class="macro-unit">fat</div><div class="macro-label">Fat</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px">Meal Timing</div>
+      <div style="border-left:3px solid var(--orange);padding-left:12px;margin-bottom:14px"><div style="font-weight:700;color:var(--orange);font-size:13px">Pre-Workout (60–90 min before)</div><div style="font-size:12px;color:var(--text2);margin-top:4px">Complex carbs + moderate protein. Low fat. Example: oats + egg whites + banana.</div></div>
+      <div style="border-left:3px solid var(--success);padding-left:12px"><div style="font-weight:700;color:var(--success);font-size:13px">Post-Workout (30–45 min after)</div><div style="font-size:12px;color:var(--text2);margin-top:4px">Fast carbs + high protein. Example: white rice + chicken or whey shake + fruit.</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px">Protein Sources</div>
+      ${[['🍗','Chicken Breast','31g/100g'],['🥚','Eggs','13g/100g'],['🧀','Paneer','18g/100g'],['🫘','Lentils (Dal)','9g/100g'],['🥛','Greek Yogurt','10g/100g'],['🐟','Tuna','26g/100g'],['💪','Whey Protein','80g/100g'],['🌱','Tofu','8g/100g']].map(([em,nm,val])=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)"><span style="font-size:18px;width:26px">${em}</span><div style="flex:1;font-size:13px">${nm}</div><span style="font-size:12px;color:var(--text2)">${val}</span></div>`).join('')}
+    </div>
+    <div class="card">
+      <div class="card-title" style="margin-bottom:8px">💧 Hydration</div>
+      <div style="font-family:var(--font-head);font-size:28px;font-weight:700;color:var(--blue)">${(lw*0.033).toFixed(1)}L / day</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:10px">Based on ${lw}kg × 33ml/kg</div>
+      ${['Drink 500ml on waking','Sip water throughout training','Add electrolytes on high-sweat days','300–400ml extra per hour of exercise'].map(t=>`<div style="font-size:12px;color:var(--text2);margin-bottom:5px">• ${t}</div>`).join('')}
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════
+// PROGRESS
+// ═══════════════════════════════════════════════
+function renderProgress(){
+  const p=state.profile;if(!p)return;
+  const lw=state.weightLog.length?state.weightLog[state.weightLog.length-1].weight:p.weight;
+  const bmi=calcBMI(lw,p.height),{cat,color}=bmiCat(bmi);
+  const total=Object.values(state.workoutLog).filter(v=>v.completed).length;
+  document.getElementById('progress-content').innerHTML=`
+    <div class="card"><div class="card-title" style="margin-bottom:12px">BMI Tracker</div><div class="bmi-wrap"><div class="bmi-value">${bmi}</div><div style="font-size:13px;color:${color}">${cat}</div></div><div class="bmi-scale"><div class="bmi-seg" style="background:#4d9fff;flex:3"></div><div class="bmi-seg" style="background:#56e39f;flex:6.5"></div><div class="bmi-seg" style="background:#ff8c42;flex:5"></div><div class="bmi-seg" style="background:#ff4d6d;flex:5"></div></div><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3)"><span>Under</span><span>Normal</span><span>Over</span><span>Obese</span></div></div>
+    <div class="stats-grid"><div class="stat-card"><div class="stat-value">${total}</div><div class="stat-label">Total Workouts</div></div><div class="stat-card"><div class="stat-value">${getStreak()}🔥</div><div class="stat-label">Streak</div></div><div class="stat-card"><div class="stat-value">${state.weightLog.length}</div><div class="stat-label">Days Logged</div></div><div class="stat-card"><div class="stat-value" style="font-size:17px">${p.weight}→${lw}</div><div class="stat-label">Start→Now kg</div><div class="stat-change ${lw<p.weight?'down':'up'}">${(lw-p.weight>0?'+':'')}${(lw-p.weight).toFixed(1)}kg</div></div></div>
+    <div class="card"><div class="card-header"><div class="card-title">Weight History</div><span class="tag">${state.weightLog.length} entries</span></div><div class="chart-wrap" style="height:220px"><canvas id="progChart"></canvas></div></div>
+    <div class="card"><div class="card-title" style="margin-bottom:12px">Workout Calendar (Last 28 Days)</div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">${Array.from({length:28},(_,i)=>{const d=new Date();d.setDate(d.getDate()-(27-i));const k=d.toISOString().split('T')[0];const done=state.workoutLog[k]?.completed;return `<div style="aspect-ratio:1;border-radius:5px;background:${done?'var(--accent)':'var(--bg3)'};opacity:${done?1:0.35}" title="${k}"></div>`;}).join('')}</div><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:7px"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div></div>
+    <div class="card"><div class="card-header"><div class="card-title">📸 Progress Gallery</div><span class="tag">${state.selfies.length} photos</span></div>${state.selfies.length===0?'<div style="text-align:center;padding:20px;color:var(--text3)">No photos yet.</div>':`<div class="selfie-grid">${state.selfies.slice(-9).reverse().map(s=>`<img class="selfie-thumb" src="${s.img}" alt="${s.date}" onclick="viewPhoto('${s.date}')" title="${s.date}">`).join('')}</div>`}</div>`;
+  setTimeout(()=>{
+    const c=document.getElementById('progChart');if(!c||!state.weightLog.length)return;
+    const ex=Chart.getChart(c);if(ex)ex.destroy();
+    new Chart(c,{type:'line',data:{labels:state.weightLog.map(e=>fmtDate(e.date)),datasets:[{data:state.weightLog.map(e=>e.weight),borderColor:'#c8f560',backgroundColor:'rgba(200,245,96,0.06)',borderWidth:2.5,pointRadius:3,tension:0.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,0.03)'},ticks:{color:'#5a5a72',font:{size:10},maxTicksLimit:8}},y:{grid:{color:'rgba(255,255,255,0.03)'},ticks:{color:'#5a5a72',font:{size:10}}}}}});
+  },80);
+}
+function viewPhoto(date){const ph=state.selfies.find(s=>s.date===date);if(!ph)return;showModal(`<div style="text-align:center"><img src="${ph.img}" style="max-width:100%;border-radius:10px;margin-bottom:10px"><div style="color:var(--text2);font-size:13px">${date}</div><div style="display:flex;gap:10px;margin-top:14px"><button class="btn btn-danger btn-sm" style="flex:1" onclick="delSelfie('${date}');closeModal()">Delete</button><button class="btn btn-secondary" style="flex:1" onclick="closeModal()">Close</button></div></div>`);}
+function delSelfie(date){state.selfies=state.selfies.filter(s=>s.date!==date);save();renderProgress();}
+
+// ═══════════════════════════════════════════════
+// PROFILE
+// ═══════════════════════════════════════════════
+function renderProfile(){
+  const p=state.profile;if(!p)return;
+  const lw=state.weightLog.length?state.weightLog[state.weightLog.length-1].weight:p.weight;
+  const bmi=calcBMI(lw,p.height);
+  document.getElementById('profile-content').innerHTML=`
+    <div class="profile-header"><div class="avatar">${p.name.charAt(0).toUpperCase()}</div><div><div class="profile-name">${p.name}</div><div class="profile-email">${p.email}</div><div style="margin-top:7px"><span class="tag">${p.plan==='standard'?'⚡ Standard':'🔥 Intense'}</span> <span class="tag" style="margin-left:5px">${p.goal}</span></div></div></div>
+    <div class="card"><div class="card-title" style="margin-bottom:12px">Body Metrics</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">${[{label:'Height',value:p.height+'cm'},{label:'Start Weight',value:p.weight+'kg'},{label:'Current Weight',value:lw+'kg'},{label:'BMI',value:bmi},{label:'Age',value:p.age+' years'},{label:'Gender',value:p.gender}].map(m=>`<div style="padding:10px;background:var(--card2);border-radius:9px;border:1px solid var(--border)"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em">${m.label}</div><div style="font-family:var(--font-head);font-size:18px;font-weight:700;margin-top:2px">${m.value}</div></div>`).join('')}</div></div>
+    <div class="card"><div class="card-title" style="margin-bottom:12px">Edit Profile</div><div class="form-group"><label class="form-label">Name</label><input class="form-input" id="e-name" value="${p.name}" type="text"></div><div class="form-row"><div class="form-group"><label class="form-label">Height (cm)</label><input class="form-input" id="e-h" value="${p.height}" type="number"></div><div class="form-group"><label class="form-label">Weight (kg)</label><input class="form-input" id="e-w" value="${lw}" type="number" step="0.1"></div></div><div class="form-group"><label class="form-label">Training Plan</label><select class="form-input" id="e-plan"><option value="standard" ${p.plan==='standard'?'selected':''}>⚡ Standard</option><option value="intense" ${p.plan==='intense'?'selected':''}>🔥 Intense</option></select></div><div class="form-group"><label class="form-label">Goal</label><select class="form-input" id="e-goal"><option value="lose" ${p.goal==='lose'?'selected':''}>Lose Weight / Cut</option><option value="build" ${p.goal==='build'?'selected':''}>Build Muscle / Bulk</option><option value="maintain" ${p.goal==='maintain'?'selected':''}>Maintain & Tone</option><option value="strength" ${p.goal==='strength'?'selected':''}>Pure Strength</option></select></div><button class="btn btn-primary btn-full" onclick="saveProfile()">Save Changes</button></div>
+    <div class="card"><div class="card-title" style="margin-bottom:6px;color:var(--red)">Danger Zone</div><p style="color:var(--text2);font-size:13px;margin-bottom:10px">Delete all data and reset the app.</p><button class="btn btn-danger btn-sm" onclick="resetApp()">Reset All Data</button></div>`;
+}
+function saveProfile(){
+  const p=state.profile;p.name=document.getElementById('e-name').value.trim()||p.name;p.height=parseFloat(document.getElementById('e-h').value)||p.height;
+  const nw=parseFloat(document.getElementById('e-w').value);if(nw){const t=todayStr(),i=state.weightLog.findIndex(e=>e.date===t);if(i>=0)state.weightLog[i].weight=nw;else state.weightLog.push({date:t,weight:nw});}
+  p.plan=document.getElementById('e-plan').value;p.goal=document.getElementById('e-goal').value;state.selectedPlan=p.plan;
+  save();renderDashboard();renderNutrition();renderPlan();showToast('Profile updated! ✓','success');
+}
+function resetApp(){showModal(`<div style="text-align:center"><div style="font-size:44px;margin-bottom:14px">⚠️</div><h3 style="font-family:var(--font-head);margin-bottom:7px">Reset All Data?</h3><p style="color:var(--text2);font-size:13px;margin-bottom:22px">This cannot be undone. All workouts, weight logs, and progress will be deleted.</p><div style="display:flex;gap:10px"><button class="btn btn-secondary" style="flex:1" onclick="closeModal()">Cancel</button><button class="btn btn-danger" style="flex:1" onclick="confirmReset()">Delete Everything</button></div></div>`);}
+function confirmReset(){localStorage.removeItem('lifeOSv4');location.reload();}
+
+// ═══════════════════════════════════════════════
+// WEEKLY SUMMARY
+// ═══════════════════════════════════════════════
+function showWeeklyModal(){
+  const now=new Date(),ws=new Date(now);ws.setDate(now.getDate()-now.getDay()+1);ws.setHours(0,0,0,0);
+  const wkLogs=Object.entries(state.workoutLog).filter(([k,v])=>new Date(k)>=ws&&v.completed);
+  const wkWeight=state.weightLog.filter(e=>new Date(e.date)>=ws);
+  const avg=wkWeight.length?(wkWeight.reduce((a,b)=>a+b.weight,0)/wkWeight.length).toFixed(1):'—';
+  showModal(`<div style="text-align:center"><div style="font-size:36px;margin-bottom:7px">📊</div><h3 style="font-family:var(--font-head);font-size:20px;margin-bottom:3px">This Week's Summary</h3><div style="color:var(--text2);font-size:12px;margin-bottom:18px">${ws.toLocaleDateString('en-US',{month:'short',day:'numeric'})} – Today</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px"><div class="stat-card"><div class="stat-value">${wkLogs.length}</div><div class="stat-label">Workouts</div></div><div class="stat-card"><div class="stat-value">${getStreak()}</div><div class="stat-label">Streak 🔥</div></div><div class="stat-card"><div class="stat-value">${avg}kg</div><div class="stat-label">Avg Weight</div></div><div class="stat-card"><div class="stat-value">${wkWeight.length}</div><div class="stat-label">Days Logged</div></div></div>${wkLogs.length>=4?'<div style="color:var(--accent);font-weight:700;margin-bottom:14px">🏆 Outstanding week!</div>':wkLogs.length>=2?'<div style="color:var(--success);font-weight:600;margin-bottom:14px">💪 Good progress!</div>':'<div style="color:var(--orange);margin-bottom:14px">⚡ Let\'s pick it up!</div>'}<button class="btn btn-primary btn-full" onclick="closeModal()">Let\'s Go! 🚀</button></div>`);
+}
+
+// ═══════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════
+(function boot(){
+  load();
+  if(state.theme)document.documentElement.setAttribute('data-theme',state.theme);
+  if(state.profile){
+    document.getElementById('onboarding').style.display='none';
+    document.getElementById('app').style.display='block';
+    initApp();
+  }
+})();
+</script>
+</body>
+</html>
